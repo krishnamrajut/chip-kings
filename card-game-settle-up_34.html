@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Game Settle-Up</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef5ee;color:#1c2e1c;min-height:100vh}
+.app{padding:1.5rem 1rem 3rem;max-width:820px;margin:0 auto}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;background:#fff;border:1px solid #c0d8c0;border-radius:12px;padding:4px;margin-bottom:1.25rem}
+.tab{flex:1;padding:8px 10px;border-radius:9px;border:none;background:transparent;font-size:13px;font-weight:600;color:#6a8c6a;cursor:pointer;transition:all .2s;text-align:center}
+.tab.active{background:#2d7a4f;color:#fff;box-shadow:0 2px 6px rgba(45,122,79,.25)}
+.tab:hover:not(.active){background:#eef5ee}
+
+/* ── Header ── */
+.header{text-align:center;padding:1.1rem 0 1rem}
+.hbadge{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #b8d8b8;border-radius:999px;padding:4px 16px;font-size:11px;color:#3d7a4a;letter-spacing:.7px;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.header h1{font-size:28px;font-weight:800;color:#1c2e1c;letter-spacing:-1px}
+.header h1 em{color:#2d7a4f;font-style:normal}
+.header p{font-size:13px;color:#6a8c6a;margin-top:4px}
+.chip-deco{display:flex;justify-content:center;gap:5px;margin-top:10px}
+.cd{width:17px;height:17px;border-radius:50%;border:3px solid transparent;flex-shrink:0}
+
+/* ── Config card ── */
+.config{background:#fff;border:1px solid #c0d8c0;border-radius:14px;padding:1rem 1.3rem;margin-bottom:1rem;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.cfg-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cfg-row label{font-size:13px;color:#4a7a52;font-weight:600;white-space:nowrap}
+select,input[type=number],input[type=text]{font-size:13px;padding:7px 10px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;transition:border-color .2s}
+select:focus,input:focus{outline:none;border-color:#2d7a4f;box-shadow:0 0 0 3px rgba(45,122,79,.1)}
+select{width:70px}
+input[type=number]{width:86px;text-align:right}
+.btn-sm{font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;border:1px solid #c0d8c0;background:#eef5ee;color:#3d7a4a;cursor:pointer;margin-left:auto;transition:all .2s}
+.btn-sm:hover{background:#ddeedd}
+
+/* ── Audit ── */
+.audit{border-radius:11px;padding:10px 15px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border:1px solid transparent;transition:all .3s}
+.audit.waiting{background:#fff;border-color:#c0d8c0}
+.audit.ok{background:#f0faf2;border-color:#4caf74}
+.audit.note{background:#fffbf0;border-color:#e6a820}
+.audit-txt{font-size:13px;font-weight:500}
+.audit.waiting .audit-txt{color:#7a9a7a}
+.audit.ok .audit-txt{color:#1a5c36}
+.audit.note .audit-txt{color:#7a4e00}
+.apill{font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.audit.waiting .apill{background:#e8f2e8;color:#4a7a52}
+.audit.ok .apill{background:#2d7a4f;color:#fff}
+.audit.note .apill{background:#e6a820;color:#2e1800}
+
+/* ── Labels ── */
+.slbl{font-size:10px;font-weight:700;color:#7a9a7a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+
+/* ── Players grid ── */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:11px;margin-bottom:1rem}
+.pcard{background:#fff;border:1px solid #c0d8c0;border-radius:14px;overflow:hidden;transition:box-shadow .2s,border-color .2s}
+.pcard:hover{box-shadow:0 3px 14px rgba(45,122,79,.1);border-color:#8fbe8f}
+.pcard-top{height:4px}
+.pcard-hd{display:flex;align-items:center;gap:9px;padding:11px 13px 8px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;border:2px solid transparent}
+.pname-sel,.pname-inp{flex:1;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;font-weight:500;min-width:0}
+.pname-sel:focus,.pname-inp:focus{outline:none;border-color:#2d7a4f}
+.pnum{font-size:10px;color:#a0b8a0;flex-shrink:0;font-weight:700}
+.pcard-body{padding:0 13px 11px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pf{display:flex;flex-direction:column;gap:3px}
+.pf label{font-size:10px;color:#7a9a7a;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.pf input[type=number]{font-size:14px;padding:6px 9px;border-radius:8px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;text-align:right;width:100%;font-weight:600}
+.pf input[type=number]:focus{outline:none;border-color:#2d7a4f}
+.pnet{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;transition:all .3s}
+.pnet.neutral{background:#f6fbf6;border:1px solid #c0d8c0}
+.pnet.win{background:#f0faf2;border:1px solid #4caf74}
+.pnet.lose{background:#fff5f5;border:1px solid #f0a0a0}
+.pnet-lbl{font-size:12px;font-weight:600}
+.pnet.neutral .pnet-lbl{color:#7a9a7a}
+.pnet.win .pnet-lbl{color:#1a6b3a}
+.pnet.lose .pnet-lbl{color:#b02020}
+.pnet-val{font-size:15px;font-weight:800}
+.pnet.neutral .pnet-val{color:#9ab89a}
+.pnet.win .pnet-val{color:#2d7a4f}
+.pnet.lose .pnet-val{color:#d03030}
+.pcard-ft{border-top:1px solid #eaf2ea;padding:7px 13px}
+.pbar-bg{height:4px;background:#e8f2e8;border-radius:2px;overflow:hidden}
+.pbar-fg{height:4px;border-radius:2px;transition:width .4s,background .4s}
+
+/* ── Food card ── */
+.food-card{background:#fff;border:2px solid #e06030;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(224,96,48,.1);margin-bottom:1rem}
+.food-card-top{height:4px;background:linear-gradient(90deg,#e06030,#f5874a,#e06030)}
+.food-card-body{display:flex;align-items:center;gap:14px;padding:13px 17px;flex-wrap:wrap}
+.food-icon{width:42px;height:42px;border-radius:50%;background:#fff5f0;border:2px solid #f5874a;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.food-info{flex:1;min-width:140px}
+.food-title{font-size:14px;font-weight:800;color:#7a2800}
+.food-subtitle{font-size:11px;color:#c06030;margin-top:2px;line-height:1.4}
+.food-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.food-field{display:flex;flex-direction:column;gap:4px}
+.food-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#c06030}
+.food-field input[type=number]{font-size:15px;padding:7px 11px;border-radius:9px;border:1.5px solid #f5874a;background:#fff5f0;color:#3d1400;text-align:right;width:120px;font-weight:700}
+.food-field input:focus{outline:none;border-color:#e06030;box-shadow:0 0 0 3px rgba(224,96,48,.12)}
+.food-field select{font-size:13px;padding:7px 10px;border-radius:9px;border:1.5px solid #f5874a;background:#fff5f0;color:#3d1400;width:140px;font-weight:600}
+.food-field select:focus{outline:none;border-color:#e06030}
+.food-note{font-size:11px;color:#c06030;margin-top:4px;font-style:italic}
+
+/* ── Pot card ── */
+.pot-card{background:#fff;border:2px solid #e6a820;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(230,168,32,.12);margin-bottom:1rem}
+.pot-card-top{height:4px;background:linear-gradient(90deg,#e6a820,#f6c343,#e6a820)}
+.pot-card-body{display:flex;align-items:center;gap:14px;padding:13px 17px;flex-wrap:wrap}
+.pot-icon{width:42px;height:42px;border-radius:50%;background:#fffbf0;border:2px solid #f6c343;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pot-info{flex:1;min-width:140px}
+.pot-title{font-size:14px;font-weight:800;color:#7a4e00}
+.pot-subtitle{font-size:11px;color:#b07820;margin-top:2px;line-height:1.4}
+.pot-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.pot-field{display:flex;flex-direction:column;gap:4px}
+.pot-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b07820}
+.pot-field input[type=number]{font-size:15px;padding:7px 11px;border-radius:9px;border:1.5px solid #e6a820;background:#fffbf0;color:#3d2800;text-align:right;width:120px;font-weight:700}
+.pot-field input:focus{outline:none;border-color:#c87800;box-shadow:0 0 0 3px rgba(230,168,32,.15)}
+.pot-count-box{display:flex;flex-direction:column;gap:4px}
+.pot-count-box label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b07820}
+.pot-count-val{font-size:15px;padding:7px 11px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;text-align:right;width:120px;font-weight:700;min-height:37px;display:flex;align-items:center;justify-content:flex-end}
+
+/* ── Actions ── */
+.actions{display:flex;gap:10px;justify-content:center;margin-bottom:1.4rem;flex-wrap:wrap}
+.btn-reset{font-size:14px;padding:10px 22px;border-radius:10px;border:1px solid #c0d8c0;background:#fff;color:#4a7a52;cursor:pointer;font-weight:600;transition:all .2s}
+.btn-reset:hover{background:#eef5ee}
+.btn-settle{font-size:15px;font-weight:800;padding:11px 36px;border-radius:10px;border:none;background:#2d7a4f;color:#fff;cursor:pointer;letter-spacing:.2px;transition:all .2s;box-shadow:0 2px 10px rgba(45,122,79,.25)}
+.btn-settle:hover{background:#1e5c38;transform:translateY(-1px);box-shadow:0 4px 18px rgba(45,122,79,.35)}
+
+/* ── Results ── */
+.results{background:#fff;border:1px solid #c0d8c0;border-radius:14px;overflow:hidden;display:none;box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.res-hd{padding:14px 20px;background:#2d7a4f;display:flex;align-items:center;justify-content:space-between}
+.res-title{font-size:17px;font-weight:800;color:#fff}
+.res-sub{font-size:12px;color:#a8d8b8;font-weight:600}
+.res-body{padding:1.25rem}
+.trio{display:flex;gap:9px;margin-bottom:1rem;flex-wrap:wrap}
+.tcell{flex:1;min-width:95px;background:#f6fbf6;border-radius:10px;padding:11px 12px;border:1px solid #e0eee0}
+.tcell .tl{font-size:10px;color:#7a9a7a;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+.tcell .tv{font-size:20px;font-weight:800;color:#1c2e1c}
+.tcell .ts{font-size:11px;color:#9ab89a;margin-top:2px}
+.tcell.tok{background:#f0faf2;border-color:#4caf74}.tcell.tok .tl{color:#2d7a4f}.tcell.tok .tv{color:#1a5c36}
+.tcell.tpot{background:#fffbf0;border-color:#e6a820}.tcell.tpot .tl{color:#b07820}.tcell.tpot .tv{color:#7a4e00}
+.pot-notice{border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;line-height:1.6;font-weight:500;background:#fffbf0;color:#7a4e00;border:1px solid #e6a820}
+.divider{border:none;border-top:1px solid #e8f2e8;margin:.9rem 0}
+.lb{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
+.lbr{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-radius:11px;border:1px solid transparent}
+.lbr.r1{background:linear-gradient(135deg,#fffbf0,#fff8e0);border-color:#e6a820}
+.lbr.rwin{background:#f0faf2;border-color:#b8e0c8}
+.lbr.rlose{background:#fff5f5;border-color:#f0c0c0}
+.lbr.reven{background:#f6fbf6;border-color:#e0eee0}
+.lb-rank{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.lb-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;border:2px solid transparent;margin-top:2px}
+.lb-info{flex:1;min-width:0}
+.lb-name-row{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.lbr.r1 .lb-name-row{color:#7a4e00}.lbr.rwin .lb-name-row{color:#1c2e1c}.lbr.rlose .lb-name-row{color:#8b1a1a}.lbr.reven .lb-name-row{color:#5a7a5a}
+.lb-bar-wrap{height:4px;background:#e8f2e8;border-radius:2px;overflow:hidden;margin-bottom:6px}
+.lb-bar{height:4px;border-radius:2px;transition:width .5s}
+.lb-val{font-size:15px;font-weight:800;min-width:65px;text-align:right;margin-top:2px}
+.lbr.r1 .lb-val{color:#c87800}.lbr.rwin .lb-val{color:#2d7a4f}.lbr.rlose .lb-val{color:#d03030}.lbr.reven .lb-val{color:#7a9a7a}
+.tag{font-size:10px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.tag-gold{background:#fde68a;color:#7a3800}.tag-win{background:#b8e8c8;color:#0f4a28}.tag-lose{background:#ffd0d0;color:#7a0f0f}.tag-bust{background:#ffb8b8;color:#5a0808}
+.nsgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:7px;margin-bottom:1rem}
+.nscard{border-radius:10px;padding:10px 11px;border:1px solid transparent}
+.nscard.win{background:#f0faf2;border-color:#a8dab8}.nscard.lose{background:#fff5f5;border-color:#f0b8b8}.nscard.even{background:#f6fbf6;border-color:#e0eee0}.nscard.potn{background:#fffbf0;border-color:#f6c343}
+.nscard .nl{font-size:11px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.nscard.win .nl{color:#2d7a4f}.nscard.lose .nl{color:#c03030}.nscard.even .nl{color:#6a8a6a}.nscard.potn .nl{color:#b07820}
+.nscard .nv{font-size:18px;font-weight:800}
+.nscard.win .nv{color:#1a6b3a}.nscard.lose .nv{color:#c03030}.nscard.even .nv{color:#7a9a7a}.nscard.potn .nv{color:#7a4e00}
+.paylist{display:flex;flex-direction:column}
+.payrow{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #e8f2e8}
+.payrow:last-child{border-bottom:none}
+.pav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;border:2px solid transparent}
+.pnm{font-size:13px;font-weight:700;color:#1c2e1c;min-width:50px}
+.arrwrap{flex:1;display:flex;align-items:center;gap:3px}
+.aline{flex:1;height:1px;background:#d0e8d0}
+.ahead{font-size:11px;color:#8ab88a}
+.ppill{border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+.ppill.player{background:#ffe0e0;color:#8b1a1a}
+.ppill.from-pot{background:#fffbf0;color:#7a4e00;border:1px solid #e6a820}
+.ppill.to-pot{background:#f0faf2;color:#1a5c36;border:1px solid #4caf74}
+.settle-tracker{margin-top:8px;border:1px solid #c0d8c0;border-radius:10px;overflow:hidden;background:#fff}
+.settle-tracker-hd{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#f0faf2;border-bottom:1px solid #c0d8c0;cursor:pointer;user-select:none}
+.settle-tracker-hd-lbl{font-size:11px;font-weight:700;color:#2d7a4f;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.settle-tracker-toggle{font-size:11px;color:#7a9a7a}
+.settle-rows{padding:6px 10px}
+.settle-item{display:flex;align-items:center;gap:8px;padding:5px 4px;border-bottom:1px solid #eaf2ea;font-size:12px}
+.settle-item:last-child{border-bottom:none}
+.settle-item.done{opacity:.5}
+.settle-from{font-weight:700;color:#b02020;min-width:34px}
+.settle-arrow{color:#9ab89a;font-size:11px}
+.settle-to{font-weight:700;color:#1a6b3a;min-width:34px}
+.settle-chips{font-size:11px;font-weight:700;background:#ffe0e0;color:#8b1a1a;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.settle-chips.pot{background:#fffbf0;color:#7a4e00;border:1px solid #e6a820}
+.settle-status{margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.settle-check{width:16px;height:16px;border-radius:4px;border:1.5px solid #c0d8c0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.settle-check.checked{background:#2d7a4f;border-color:#2d7a4f}
+.settle-check svg{display:none}
+.settle-check.checked svg{display:block}
+.settle-summary{font-size:11px;padding:4px 10px 7px;color:#7a9a7a;font-weight:600}
+.settle-summary .done-count{color:#2d7a4f;font-weight:700}
+.allsq{text-align:center;padding:1.5rem;color:#6a8c6a;font-size:14px;font-weight:600}
+.allsq .big{font-size:40px;margin-bottom:8px}
+.btn-save{width:100%;margin-top:1rem;font-size:14px;font-weight:700;padding:11px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(37,99,235,.2)}
+.btn-save:hover{background:#1d4ed8;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.save-confirm{display:none;text-align:center;padding:10px;border-radius:10px;background:#f0faf2;color:#1a5c36;font-weight:600;font-size:13px;margin-top:8px;border:1px solid #4caf74}
+
+/* ── History tab ── */
+.hist-panel{background:#fff;border:1px solid #c0d8c0;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.hist-hd{padding:14px 18px;background:#2d7a4f;display:flex;align-items:center;justify-content:space-between}
+.hist-hd-title{font-size:16px;font-weight:800;color:#fff}
+.btn-export{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;cursor:pointer;transition:all .2s}
+.btn-export:hover{background:rgba(255,255,255,.25)}
+.btn-clear-hist{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,100,100,.5);background:rgba(255,100,100,.15);color:#ffd0d0;cursor:pointer;transition:all .2s}
+.btn-clear-hist:hover{background:rgba(255,100,100,.3)}
+.hist-body{padding:1.25rem}
+.no-hist{text-align:center;padding:2.5rem;color:#7a9a7a;font-size:14px}
+.no-hist .big{font-size:40px;margin-bottom:10px}
+.session-card{background:#f6fbf6;border:1px solid #c0d8c0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.session-date{font-size:12px;font-weight:700;color:#4a7a52;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.session-players{display:flex;flex-wrap:wrap;gap:6px}
+.sess-player{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #e0eee0;border-radius:8px;padding:5px 10px;font-size:12px}
+.sess-player.swon{background:#f0faf2;border-color:#a8dab8;color:#1a6b3a}
+.sess-player.slost{background:#fff5f5;border-color:#f0b8b8;color:#b02020}
+.sess-player.seven{background:#f6fbf6;border-color:#e0eee0;color:#5a7a5a}
+.sess-name{font-weight:700}
+.sess-net{font-weight:800;margin-left:2px}
+.btn-del-sess{font-size:10px;padding:2px 7px;border-radius:6px;border:1px solid #f0b8b8;background:transparent;color:#c03030;cursor:pointer;margin-left:auto}
+.btn-del-sess:hover{background:#fff5f5}
+
+/* ── Trends tab ── */
+.trends-panel{display:flex;flex-direction:column;gap:14px}
+.trend-card{background:#fff;border:1px solid #c0d8c0;border-radius:14px;padding:1.1rem 1.25rem;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.trend-title{font-size:14px;font-weight:700;color:#1c2e1c;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.trend-title span{font-size:18px}
+.all-time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.at-card{border-radius:10px;padding:10px 12px;border:1px solid transparent}
+.at-card .at-name{font-size:13px;font-weight:700;color:#1c2e1c;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.at-stat{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.at-stat .at-lbl{color:#7a9a7a}
+.at-stat .at-val{font-weight:700}
+.at-stat .at-val.pos{color:#2d7a4f}
+.at-stat .at-val.neg{color:#d03030}
+.at-bar-bg{height:4px;background:#e8f2e8;border-radius:2px;overflow:hidden;margin-top:5px}
+.at-bar-fg{height:4px;border-radius:2px;transition:width .5s}
+.streak-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;background:#f6fbf6;border:1px solid #e0eee0;margin-bottom:6px}
+.streak-row:last-child{margin-bottom:0}
+.streak-name{font-size:13px;font-weight:700;color:#1c2e1c;flex:1}
+.streak-badge{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.streak-w{background:#b8e8c8;color:#0f4a28}
+.streak-l{background:#ffd0d0;color:#7a0f0f}
+.streak-n{background:#e8f2e8;color:#4a7a52}
+.mini-chart{margin-top:8px}
+.mc-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.mc-name{font-size:11px;font-weight:700;color:#4a7a52;width:72px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-bar-bg{flex:1;height:8px;background:#e8f2e8;border-radius:4px;overflow:hidden}
+.mc-bar-fg{height:8px;border-radius:4px;transition:width .6s}
+.mc-val{font-size:11px;font-weight:700;min-width:40px;text-align:right}
+.sessions-mini{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.sess-dot{width:12px;height:12px;border-radius:50%;cursor:default;transition:transform .1s;flex-shrink:0}
+.sess-dot:hover{transform:scale(1.4)}
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.stat-box{flex:1;min-width:90px;background:#f6fbf6;border:1px solid #e0eee0;border-radius:10px;padding:10px 12px}
+.stat-box .sb-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#7a9a7a;margin-bottom:4px}
+.stat-box .sb-val{font-size:20px;font-weight:800;color:#1c2e1c}
+.stat-box .sb-sub{font-size:11px;color:#9ab89a;margin-top:2px}
+.stat-box.green{background:#f0faf2;border-color:#a8dab8}.stat-box.green .sb-lbl{color:#2d7a4f}.stat-box.green .sb-val{color:#1a6b3a}
+.stat-box.red{background:#fff5f5;border-color:#f0b8b8}.stat-box.red .sb-lbl{color:#c03030}.stat-box.red .sb-val{color:#991b1b}
+.stat-box.gold{background:#fffbf0;border-color:#f6c343}.stat-box.gold .sb-lbl{color:#b07820}.stat-box.gold .sb-val{color:#7a4e00}
+
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-2.5deg)}80%{transform:rotate(2.5deg)}}
+.bouncy{animation:bounce .9s ease-in-out infinite}
+.shakey{animation:shake .35s ease-in-out infinite}
+
+/* hide/show pages */
+.page{display:none}.page.active{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px">
+    <!-- South Indian inspired logo: temple gopuram silhouette with chip -->
+    <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Gopuram tiers -->
+      <rect x="21" y="38" width="12" height="10" rx="1" fill="#c87800"/>
+      <rect x="19" y="32" width="16" height="7" rx="1" fill="#e6a820"/>
+      <rect x="17" y="26" width="20" height="7" rx="1" fill="#c87800"/>
+      <rect x="15" y="20" width="24" height="7" rx="1" fill="#e6a820"/>
+      <rect x="18" y="16" width="18" height="5" rx="1" fill="#c87800"/>
+      <!-- Kalasam (finial) -->
+      <ellipse cx="27" cy="13" rx="5" ry="3" fill="#e6a820"/>
+      <ellipse cx="27" cy="11" rx="3" ry="2" fill="#c87800"/>
+      <circle cx="27" cy="9" r="2" fill="#e6a820"/>
+      <!-- Decorative arch lines on tiers -->
+      <line x1="21" y1="34" x2="33" y2="34" stroke="#fff8e0" stroke-width=".7" stroke-dasharray="2,2"/>
+      <line x1="19" y1="27" x2="35" y2="27" stroke="#fff8e0" stroke-width=".7" stroke-dasharray="2,2"/>
+      <line x1="17" y1="21" x2="37" y2="21" stroke="#fff8e0" stroke-width=".7" stroke-dasharray="2,2"/>
+      <!-- Chip overlay bottom-right -->
+      <circle cx="42" cy="42" r="9" fill="#2d7a4f" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="42" cy="42" r="6.5" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="42" y="46" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="sans-serif">♠</text>
+    </svg>
+    <div style="text-align:left">
+      <div style="font-size:22px;font-weight:800;color:#1c2e1c;letter-spacing:-0.5px">Chip <span style="color:#c87800">Kings</span></div>
+      <div style="font-size:11px;color:#7a9a7a;font-weight:600;letter-spacing:.4px">SETTLE UP · TRACK · DOMINATE</div>
+    </div>
+  </div>
+  <div style="font-size:13px;color:#6a8c6a;margin-top:2px">Settle chips · Track history · See who's on a roll 🎯</div>
+  <div class="chip-deco">
+    <div class="cd" style="background:#7c3aed;border-color:#6d28d9"></div>
+    <div class="cd" style="background:#2d7a4f;border-color:#1e5c38"></div>
+    <div class="cd" style="background:#c03030;border-color:#9a1a1a"></div>
+    <div class="cd" style="background:#2563eb;border-color:#1d4ed8"></div>
+    <div class="cd" style="background:#e6a820;border-color:#c87800"></div>
+    <div class="cd" style="background:#db2777;border-color:#be185d"></div>
+    <div class="cd" style="background:#0891b2;border-color:#0e7490"></div>
+    <div class="cd" style="background:#ea580c;border-color:#c2410c"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('settle')">♠ Settle</button>
+  <button class="tab" onclick="showPage('history')" id="tabHist">📅 History</button>
+  <button class="tab" onclick="showPage('trends')" id="tabTrends">📊 Trends</button>
+</div>
+
+<!-- ══ SETTLE PAGE ══ -->
+<div class="page active" id="pageSettle">
+
+<div class="config">
+  <div class="cfg-row">
+    <label>Players</label>
+    <select id="numPlayers" onchange="buildPlayers()">
+      <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+      <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+    </select>
+    <label>Starting chips</label>
+    <input type="number" id="startChips" value="250" min="1" oninput="liveAudit()">
+    <button class="btn-sm" onclick="buildPlayers()">↺ Reset table</button>
+  </div>
+</div>
+
+<div id="auditBar" class="audit waiting">
+  <span class="audit-txt" id="auditTxt">Select players and enter final chip counts to begin.</span>
+  <span class="apill" id="auditPill">Waiting</span>
+</div>
+
+<div class="slbl">Players</div>
+<div class="pgrid" id="pgrid"></div>
+
+<div class="slbl">Food Expenses 🍕</div>
+<div class="food-card">
+  <div class="food-card-top"></div>
+  <div class="food-card-body">
+    <div class="food-icon">🍕</div>
+    <div class="food-info">
+      <div class="food-title">Food &amp; Other Expenses</div>
+      <div class="food-subtitle">Pot pays for food &amp; other shared expenses. Enter amount and who paid — they'll be reimbursed from the pot.</div>
+    </div>
+    <div class="food-fields">
+      <div class="food-field">
+        <label>Amount Spent</label>
+        <input type="number" id="foodAmount" value="0" min="0" placeholder="0" oninput="liveAudit()">
+      </div>
+      <div class="food-field">
+        <label>Paid by</label>
+        <select id="foodPaidBy" onchange="liveAudit()">
+          <option value="">— select player —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slbl">The Pot</div>
+<div class="pot-card">
+  <div class="pot-card-top"></div>
+  <div class="pot-card-body">
+    <div class="pot-icon">🏆</div>
+    <div class="pot-info">
+      <div class="pot-title">Pot</div>
+      <div class="pot-subtitle">Chips remaining in pot. Leave 0 if unknown — imaginary pot covers any shortfall.</div>
+    </div>
+    <div class="pot-fields">
+      <div class="pot-field">
+        <label>Pot final chips</label>
+        <input type="number" id="potFinal" value="0" min="0" placeholder="0" oninput="liveAudit()">
+      </div>
+      <div class="pot-count-box">
+        <label>Final pot count</label>
+        <div class="pot-count-val" id="potFinalCount">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn-reset" onclick="resetChips()">↺ Reset chips</button>
+  <button class="btn-settle" onclick="settle()">♠ Settle Up</button>
+</div>
+
+<div class="results" id="results"></div>
+
+</div><!-- /pageSettle -->
+
+<!-- ══ HISTORY PAGE ══ -->
+<div class="page" id="pageHistory">
+  <div class="hist-panel">
+    <div class="hist-hd">
+      <div class="hist-hd-title">📅 Session History</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-export" onclick="exportJSON()" title="Export all sessions as a backup file">⬇ Export backup</button>
+        <label class="btn-export" style="cursor:pointer" title="Import sessions from a backup file — merges with existing data">
+          ⬆ Import backup
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+        </label>
+        <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
+        <button class="btn-clear-hist" onclick="clearHistory()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div id="importMsg" style="display:none;margin:8px 14px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600"></div>
+    <div class="hist-body" id="histBody"></div>
+  </div>
+</div>
+
+<!-- ══ TRENDS PAGE ══ -->
+<div class="page" id="pageTrends">
+  <div class="trends-panel" id="trendsPanel"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- Edit Session Modal -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2)">
+    <div style="font-size:17px;font-weight:800;color:#1c2e1c;margin-bottom:4px">✏️ Edit Session</div>
+    <div style="font-size:12px;color:#7a9a7a;margin-bottom:1.25rem" id="editModalDate"></div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a;margin-bottom:8px">Player nets (chips)</div>
+    <div id="editPlayerRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem"></div>
+    <div style="border-top:1px solid #e8f2e8;padding-top:1rem;margin-top:.5rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#c06030;margin-bottom:8px">🍕 Food &amp; Other Expenses</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;color:#c06030;font-weight:600">Amount Spent</label>
+          <input type="number" id="editFoodAmt" value="0" min="0" style="width:110px;font-size:14px;padding:6px 9px;border-radius:8px;border:1.5px solid #f5874a;background:#fff5f0;color:#3d1400;text-align:right;font-weight:700">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;color:#c06030;font-weight:600">Paid by</label>
+          <input type="text" id="editFoodPaidBy" placeholder="Player name" style="width:130px;font-size:13px;padding:6px 9px;border-radius:8px;border:1.5px solid #f5874a;background:#fff5f0;color:#3d1400;font-weight:600">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
+      <button onclick="closeEditModal()" style="font-size:13px;padding:8px 18px;border-radius:9px;border:1px solid #c0d8c0;background:#eef5ee;color:#3d7a4a;cursor:pointer;font-weight:600">Cancel</button>
+      <button onclick="saveEditSession()" style="font-size:13px;padding:8px 20px;border-radius:9px;border:none;background:#2d7a4f;color:#fff;cursor:pointer;font-weight:700">Save changes</button>
+    </div>
+  </div>
+</div>
+<script>
+const ALL_NAMES=['KR','PP','PV','CP','SG','K1','K2','RR','MM','VK','RA','RM'];
+
+// Name migration map: old full names → new abbreviations
+const NAME_MAP={
+  'K Raju':'KR','Praveen':'PP','Prafulla':'PV','Chiru':'CP',
+  'Srikanth':'SG','Rajesh':'K1','Sandeep':'K2','Rama Raju':'RR',
+  'Mahesh':'MM','Vamsi':'VK','Ranjit':'RA','Ranjith':'RA','Ravindra':'RM',
+  'PRR':'RR','Vamsi':'VK'
+};
+
+function migrateName(n){ return NAME_MAP[n]||n; }
+
+// Run once on load: migrate all old names + patch most recent session with CP's food expense
+function migrateAndPatchSessions(){
+  let sessions=loadSessions();
+
+  // Step 1: Rename all player names across all sessions (always safe to re-run)
+  sessions=sessions.map(s=>({
+    ...s,
+    players:s.players.map(p=>({...p,name:migrateName(p.name)})),
+    foodPaidBy:s.foodPaidBy?migrateName(s.foodPaidBy):s.foodPaidBy
+  }));
+
+  // Step 2: Patch food payer per session date (one-time correction, always force-apply)
+  sessions=sessions.map(s=>{
+    const d=new Date(s.date);
+    const month=d.getMonth()+1, day=d.getDate(), year=d.getFullYear();
+    // Apr 23 2026 → CP paid 191
+    if(year===2026 && month===4 && day===23){
+      const totalWon =s.players.reduce((sum,p)=>sum+(p.net>0?p.net:0),0);
+      const totalLost=s.players.reduce((sum,p)=>sum+(p.net<0?-p.net:0),0);
+      const chipDiff=totalLost-totalWon;
+      return {...s, foodAmt:191, foodPaidBy:'CP', _foodPatched:true,
+        potGets:Math.max(0,chipDiff), potPays:Math.max(0,-chipDiff),
+        finalPotCount:(s.potFinal||0)+chipDiff-191};
+    }
+    // Apr 24 2026 → KR paid 205
+    if(year===2026 && month===4 && day===24){
+      const totalWon =s.players.reduce((sum,p)=>sum+(p.net>0?p.net:0),0);
+      const totalLost=s.players.reduce((sum,p)=>sum+(p.net<0?-p.net:0),0);
+      const chipDiff=totalLost-totalWon;
+      return {...s, foodAmt:205, foodPaidBy:'KR', _foodPatched:true,
+        potGets:Math.max(0,chipDiff), potPays:Math.max(0,-chipDiff),
+        finalPotCount:(s.potFinal||0)+chipDiff-205};
+    }
+    return s;
+  });
+
+  // Step 3: Rebuild settlements for ALL sessions with optimized algorithm
+  // Always rebuild (ignore old _settleOptimized flag) to ensure consolidated Pot logic is applied
+  sessions=sessions.map(s=>{
+    const foodAmt=s.foodAmt||0, foodPaidBy=s.foodPaidBy||'';
+    const balMap={};
+    s.players.forEach(p=>{
+      balMap[p.name]={name:p.name, c:palFor(p.name), net:p.net, isPot:false};
+    });
+    let potNetChips=(s.potGets||0)-(s.potPays||0);
+    if(foodAmt>0){
+      potNetChips-=foodAmt;
+      if(foodPaidBy&&balMap[foodPaidBy]) balMap[foodPaidBy].net+=foodAmt;
+      else if(foodPaidBy) balMap[foodPaidBy]={name:foodPaidBy,c:palFor(foodPaidBy),net:foodAmt,isPot:false};
+    }
+    if(Math.abs(potNetChips)>0) balMap['Pot']={name:'Pot',c:POT_C,net:potNetChips,isPot:true,isPotIn:potNetChips>0};
+    const pays=normalizePayments(Object.values(balMap));
+    pays.forEach(p=>{if(p.from.endsWith('*'))p.from=p.from.slice(0,-1);if(p.to.endsWith('*'))p.to=p.to.slice(0,-1);});
+    // Preserve any existing settled=true status by from→to key
+    const oldMap={};
+    (s.settlements||[]).forEach(x=>{ oldMap[x.from+'→'+x.to]=x.settled; });
+    return {...s, _settleOptimized:true, settlements:pays.map(p=>({
+      from:p.from, to:p.to, chips:p.chips, fromPot:!!p.fp, toPot:!!p.tp,
+      settled: oldMap[p.from+'→'+p.to]||false
+    }))};
+  });
+
+  saveSessions(sessions);
+}
+const PAL=[
+  {bg:'#f0e8ff',text:'#4c1d95',dot:'#7c3aed',cbg:'#ddd6fe'},{bg:'#e8f5ec',text:'#14532d',dot:'#2d7a4f',cbg:'#a7f3d0'},
+  {bg:'#ffe8e8',text:'#7f1d1d',dot:'#dc2626',cbg:'#fca5a5'},{bg:'#e8f0ff',text:'#1e3a8a',dot:'#2563eb',cbg:'#bfdbfe'},
+  {bg:'#fff8e8',text:'#78350f',dot:'#d97706',cbg:'#fde68a'},{bg:'#ffe8f4',text:'#831843',dot:'#db2777',cbg:'#fbcfe8'},
+  {bg:'#e8f8ff',text:'#164e63',dot:'#0891b2',cbg:'#a5f3fc'},{bg:'#ffe8f8',text:'#701a75',dot:'#a21caf',cbg:'#f5d0fe'},
+  {bg:'#fff0e8',text:'#7c2d12',dot:'#ea580c',cbg:'#fed7aa'},{bg:'#e8fff8',text:'#134e4a',dot:'#0d9488',cbg:'#99f6e4'},
+  {bg:'#f0f0ff',text:'#312e81',dot:'#4f46e5',cbg:'#c7d2fe'},{bg:'#fff8f0',text:'#7c2d12',dot:'#c2410c',cbg:'#fdba74'},
+];
+const POT_C={bg:'#fffbf0',text:'#7a4e00',dot:'#e6a820',cbg:'#fde68a'};
+const WIN_TAGS=['Chip Magnet 🔥','On Fire! 🎯','Cleaned Up 💰','Table Boss 👑','Unstoppable ⚡','Killing It ♠'];
+const LOSE_TAGS=['Rekt 💸','Wallet Cried 😭','Next Time 🙏','Bad Beats 🫤','Ouch! 😬','Send Chips 🆘'];
+const BIGWIN=['LEGEND! 🏆','Robbery! 🚨','Untouchable! 👑','Call Security! 🚔'];
+const BUST=['RIP Wallet 🪦','Send Help! 🆘','Take Uber Home 🚗','Time to Borrow 😅'];
+
+let players=[];
+const STORAGE_KEY='cardgame_sessions_v1';
+
+function palFor(name){const i=ALL_NAMES.indexOf(name);return i>=0?PAL[i%PAL.length]:PAL[Math.abs(name.charCodeAt(0)||0)%PAL.length];}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+const TOP_EARNER_TITLES=[
+  'చిప్పుల చక్రవర్తి 👑',
+  'పైసల పులి 🐯',
+  'Table Destroyer 💥',
+  'Luck Thief 🦝',
+  'Chip Hoarder 🐉',
+  'వీడు దొంగ! 🚨',
+  'అందరినీ దోచాడు 💰',
+  'Pocket Full 😏',
+  'ATM on Legs 🏧',
+  'The Untouchable 🕶️',
+];
+function pickTopEarnerTitle(){return pick(TOP_EARNER_TITLES);}
+
+const LOSER_TITLES=[
+  'Chips Sponsor 🫡',         // paying for everyone's wins
+  'Most Generous Player 🤝',  // donating chips warmly
+  'Table Philanthropist 💝',  // giving back to the table
+  'చాలా Brave ఆడాడు 🦁',    // Played very bravely
+  'బంగారు మనసు 🥹',          // Golden heart (gave away chips!)
+  'Practice Mode On 🎮',      // still learning
+  'Warming Up Still 🔥',      // just getting started
+  'Long Game Player ♟️',      // strategic patience
+  'చుట్టూ పంచాడు 🎁',        // Shared with everyone
+  'Star of Next Session ⭐',  // will come back strong
+];
+function pickLoserTitle(){return pick(LOSER_TITLES);}
+function getUsed(ei){return players.map((p,i)=>i!==ei?p.name:'').filter(n=>n);}
+
+function buildPlayers(){
+  const n=+document.getElementById('numPlayers').value;
+  const s=+document.getElementById('startChips').value||250;
+  const prev=players;
+  players=Array.from({length:n},(_,i)=>({
+    name:(prev[i]&&prev[i].name)||'',start:s,
+    end:(prev[i]&&prev[i].end!=null)?prev[i].end:s,
+    c:PAL[i%PAL.length],custom:(prev[i]&&prev[i].custom)||false
+  }));
+  render();liveAudit();
+  document.getElementById('results').style.display='none';
+  document.getElementById('saveConfirm').style.display='none';
+}
+
+function render(){
+  document.getElementById('pgrid').innerHTML=players.map((p,i)=>{
+    const diff=p.end-p.start;
+    const pct=p.start>0?Math.min(100,Math.max(2,p.end/p.start*100)):100;
+    const barCol=diff>0?'#2d7a4f':diff<0?'#d03030':'#9ab89a';
+    const ncls=diff>0?'win':diff<0?'lose':'neutral';
+    const used=getUsed(i);
+    const avail=ALL_NAMES.filter(n=>n===p.name||!used.includes(n));
+    const opts=avail.map(n=>`<option value="${n}"${n===p.name?' selected':''}>${n}</option>`).join('');
+    const nf=p.custom
+      ?`<input class="pname-inp" type="text" value="${p.name}" placeholder="Type name..." oninput="players[${i}].name=this.value;upAv(${i})" onblur="liveAudit()">`
+      :`<select class="pname-sel" onchange="onName(${i},this.value)">
+          <option value=""${!p.name?' selected':''}>— select player —</option>
+          ${opts}<option value="__c__">✏ Enter manually...</option>
+        </select>`;
+    return `<div class="pcard"><div class="pcard-top" style="background:${p.c.dot}"></div>
+      <div class="pcard-hd">
+        <div class="av" style="background:${p.c.bg};color:${p.c.text};border-color:${p.c.cbg}" id="av${i}">${p.name?p.name.slice(0,2).toUpperCase():'P'+(i+1)}</div>
+        ${nf}<span class="pnum">P${i+1}</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pf"><label>Starting</label><input type="number" value="${p.start}" min="0" onchange="players[${i}].start=+this.value;upCard(${i});liveAudit()"></div>
+        <div class="pf"><label>Final</label><input type="number" value="${p.end}" min="0" onchange="players[${i}].end=+this.value;upCard(${i});liveAudit()"></div>
+        <div class="pnet ${ncls}" id="net${i}">
+          <span class="pnet-lbl" id="netlbl${i}">${diff>0?'Won ▲':diff<0?'Lost ▼':'Even'}</span>
+          <span class="pnet-val" id="netval${i}">${diff===0?'—':(diff>0?'+':'')+diff+' chips'}</span>
+        </div>
+      </div>
+      <div class="pcard-ft"><div class="pbar-bg"><div class="pbar-fg" id="pb${i}" style="width:${pct}%;background:${barCol}"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+function onName(i,val){
+  if(val==='__c__'){players[i].custom=true;players[i].name='';render();liveAudit();return;}
+  players[i].name=val;render();liveAudit();
+}
+function upAv(i){const el=document.getElementById('av'+i);if(el)el.textContent=players[i].name?players[i].name.slice(0,2).toUpperCase():'P'+(i+1);}
+function upCard(i){
+  const diff=players[i].end-players[i].start;
+  const n=document.getElementById('net'+i),pb=document.getElementById('pb'+i);
+  if(n){n.className='pnet '+(diff>0?'win':diff<0?'lose':'neutral');document.getElementById('netlbl'+i).textContent=diff>0?'Won ▲':diff<0?'Lost ▼':'Even';document.getElementById('netval'+i).textContent=diff===0?'—':(diff>0?'+':'')+diff+' chips';}
+  if(pb){const pct=players[i].start>0?Math.min(100,Math.max(2,players[i].end/players[i].start*100)):100;pb.style.width=pct+'%';pb.style.background=diff>0?'#2d7a4f':diff<0?'#d03030':'#9ab89a';}
+}
+
+function updateFoodDropdown(){
+  const sel=document.getElementById('foodPaidBy');
+  const cur=sel.value;
+  const names=players.map(p=>p.name).filter(n=>n);
+  sel.innerHTML='<option value="">— select player —</option>'+names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+}
+
+function calcPotFlow(){
+  const totalWon  = players.reduce((s,p)=>s+(p.end>p.start?p.end-p.start:0),0);
+  const totalLost = players.reduce((s,p)=>s+(p.end<p.start?p.start-p.end:0),0);
+  const potFinal  = +document.getElementById('potFinal').value||0;
+  const foodAmt   = +document.getElementById('foodAmount').value||0;
+  // pot chip diff from players: surplus if lost > won, shortfall if won > lost
+  const chipDiff  = totalLost - totalWon; // +ve = surplus goes to pot, -ve = pot pays
+  // food reduces pot balance (pot pays food payer)
+  const finalPotCount = potFinal + chipDiff - foodAmt;
+  return {totalWon, totalLost, potFinal, foodAmt,
+    chipDiff,
+    potGets: Math.max(0, chipDiff),
+    potPays: Math.max(0, -chipDiff),
+    finalPotCount
+  };
+}
+
+function liveAudit(){
+  const bar=document.getElementById('auditBar'),txt=document.getElementById('auditTxt'),pill=document.getElementById('auditPill');
+  const fpc=document.getElementById('potFinalCount');
+  updateFoodDropdown();
+  if(!players.length){bar.className='audit waiting';txt.textContent='Select players and enter final chip counts to begin.';pill.textContent='Waiting';fpc.textContent='—';fpc.style.color='#7a9a7a';return;}
+  const {potFinal,foodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
+  fpc.textContent=finalPotCount+' chips';
+  fpc.style.color=finalPotCount>0?'#2d7a4f':finalPotCount<0?'#c87800':'#1c2e1c';
+  if(chipDiff===0&&foodAmt===0){bar.className='audit ok';txt.textContent='Perfectly balanced — pot unchanged.';pill.textContent='✓ Balanced';}
+  else if(chipDiff>0){bar.className='audit ok';txt.textContent=`Surplus ${potGets} chips go to Pot.${foodAmt>0?' Pot also covers '+foodAmt+' food chips.':''}`;pill.textContent=`Pot net: ${finalPotCount}`;}
+  else{const im=Math.max(0,potPays+foodAmt-potFinal);bar.className=im>0?'audit note':'audit ok';txt.textContent=`Pot pays ${potPays} chips to winners${foodAmt>0?' + '+foodAmt+' food chips':''}.`;pill.textContent=`Pot net: ${finalPotCount}`;}
+}
+
+function resetChips(){
+  const s=+document.getElementById('startChips').value||250;
+  players.forEach(p=>{p.start=s;p.end=s;});
+  document.getElementById('potFinal').value=0;
+  document.getElementById('foodAmount').value=0;
+  document.getElementById('foodPaidBy').value='';
+  render();liveAudit();
+  document.getElementById('results').style.display='none';
+  document.getElementById('saveConfirm').style.display='none';
+}
+
+/* ── Normalized settlement: minimize number of transactions ──
+   Uses a greedy largest-creditor/largest-debtor approach which
+   often produces the minimum number of payments. Each debtor
+   settles with one creditor at a time before moving to the next. */
+function normalizePayments(bals){
+  // Build mutable balance list
+  const bal = bals.map(b=>({...b, rem: b.net}));
+  const debtors  = bal.filter(b=>b.rem<0).sort((a,b)=>a.rem-b.rem);  // most negative first
+  const creditors= bal.filter(b=>b.rem>0).sort((a,b)=>b.rem-a.rem);  // most positive first
+  const pays=[];
+  let di=0, ci=0;
+  while(di<debtors.length && ci<creditors.length){
+    const d=debtors[di], c=creditors[ci];
+    const amt=Math.min(-d.rem, c.rem);
+    if(amt>0) pays.push({from:d.name,to:c.name,chips:amt,fc:d.c,tc:c.c,fp:d.isPot,tp:c.isPot,toPotIn:c.isPotIn||false});
+    d.rem+=amt; c.rem-=amt;
+    if(Math.abs(d.rem)<0.001) di++;
+    if(Math.abs(c.rem)<0.001) ci++;
+  }
+  return pays;
+}
+
+function settle(){
+  liveAudit();
+  const {totalWon,totalLost,potFinal,foodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
+  const foodPaidBy=document.getElementById('foodPaidBy').value;
+  const imaginaryUsed=Math.max(0, potPays+foodAmt-potFinal);
+  const nets=players.map(p=>({...p,net:p.end-p.start}));
+  const sorted=[...nets].sort((a,b)=>b.net-a.net);
+  const maxAbs=Math.max(...nets.map(n=>Math.abs(n.net)),potGets,potPays,1);
+  const ts=players.reduce((s,p)=>s+p.start,0);
+
+  // Build optimized balance sheet — consolidate ALL flows into one net per participant
+  // Player chip net (game only)
+  const balMap = {};
+  nets.forEach(p=>{
+    const key=p.name||'?';
+    balMap[key]={name:key, c:p.c, net:p.net, isPot:false};
+  });
+
+  // Pot's net from chip play: potGets>0 means pot is creditor, potPays>0 means pot is debtor
+  // Net pot chip position = potGets - potPays (one value, one entry)
+  let potNetChips = potGets - potPays; // +ve = pot is owed chips (creditor), -ve = pot pays out (debtor)
+
+  // Food: pot pays foodAmt to food payer (reduces pot's position, credits payer)
+  if(foodAmt>0){
+    potNetChips -= foodAmt; // pot pays food payer
+    if(foodPaidBy && balMap[foodPaidBy]){
+      balMap[foodPaidBy].net += foodAmt; // food payer gets reimbursed (separate from game net for display, but merged for settlement math)
+    } else if(foodPaidBy){
+      const payerC=palFor(foodPaidBy);
+      balMap[foodPaidBy]={name:foodPaidBy, c:payerC, net:foodAmt, isPot:false};
+    }
+  }
+
+  // Add single consolidated Pot entry
+  if(Math.abs(potNetChips)>0){
+    balMap['Pot']={name:'Pot', c:POT_C, net:potNetChips, isPot:true, isPotIn:potNetChips>0};
+  }
+
+  const bals=Object.values(balMap);
+  const pays=normalizePayments(bals);
+  pays.forEach(p=>{
+    if(p.from.endsWith('*')) p.from=p.from.slice(0,-1);
+    if(p.to.endsWith('*')) p.to=p.to.slice(0,-1);
+  });
+
+  // Food notice
+  let foodNotice='';
+  if(foodAmt>0){
+    foodNotice=`<div style="border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;line-height:1.6;font-weight:500;background:#fff5f0;color:#7a2800;border:1px solid #f5874a">🍕 Food &amp; Other Expenses: <strong>${foodAmt} chips</strong>${foodPaidBy?' — paid by <strong>'+foodPaidBy+'</strong>, reimbursed from Pot.':' — deducted from Pot (no payer selected).'}</div>`;
+  }
+
+  let potNotice='';
+  if(chipDiff>0) potNotice=`<div class="pot-notice">Surplus <strong>${potGets} chips</strong> → Pot.${foodAmt>0?' Pot covers food ('+foodAmt+' chips).':''} Final pot: <strong>${finalPotCount} chips</strong>.</div>`;
+  else if(chipDiff<0||foodAmt>0) potNotice=`<div class="pot-notice">Pot pays <strong>${potPays} chips</strong> to winners.${foodAmt>0?' Pot also covers <strong>'+foodAmt+' food chips</strong>.':''} Final pot: <strong>${finalPotCount} chips</strong>.${imaginaryUsed>0?' ('+imaginaryUsed+' chips from reserve)':''}</div>`;
+
+  const potTrioCls=chipDiff===0&&foodAmt===0?'tok':finalPotCount>=0?'tok':'tpot';
+
+  const lbRows=sorted.map((p,idx)=>{
+    const isBigWin=p.net>0&&idx===0&&p.net>ts*0.25;
+    const isBust=p.end===0&&p.start>0;
+    const isTopLose=idx===sorted.length-1&&p.net<0;
+    const rowCls=idx===0&&p.net>0?'r1':p.net>0?'rwin':p.net<0?'rlose':'reven';
+    const barCol=p.net>0?'#2d7a4f':p.net<0?'#d03030':'#9ab89a';
+    const pct=Math.round(Math.abs(p.net)/maxAbs*100);
+    const emoji=idx===0&&p.net>0?'🏆':isBust?'💀':isTopLose?'😭':p.net>0?'✅':p.net<0?'❌':'🤝';
+    let tagTxt='';
+    if(isBigWin) tagTxt=`<span class="tag tag-gold bouncy">${pick(BIGWIN)}</span>`;
+    else if(p.net>0&&idx===0) tagTxt=`<span class="tag tag-win">${pick(WIN_TAGS)}</span>`;
+    if(isBust) tagTxt=`<span class="tag tag-bust shakey">${pick(BUST)}</span>`;
+    else if(isTopLose&&!isBigWin) tagTxt+=`<span class="tag tag-lose">${pick(LOSE_TAGS)}</span>`;
+    return `<div class="lbr ${rowCls}"><div class="lb-rank">${emoji}</div>
+      <div class="lb-av" style="background:${p.c.bg};color:${p.c.text};border-color:${p.c.cbg}">${(p.name||'?').slice(0,2).toUpperCase()}</div>
+      <div class="lb-info" style="flex:1"><div class="lb-name-row">${p.name||'Player '+(idx+1)} ${tagTxt}</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${barCol}"></div></div></div>
+      <div class="lb-val" style="align-self:flex-start">${p.net===0?'Even':(p.net>0?'+':'')+p.net}</div></div>`;
+  }).join('');
+
+  // Net summary: always show raw game chip net (food is separate)
+  const nsCards=nets.map(p=>{
+    const cls=p.net>0?'win':p.net<0?'lose':'even';
+    const isFoodPayer=foodAmt>0&&foodPaidBy&&p.name===foodPaidBy;
+    return `<div class="nscard ${cls}">
+      <div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:${p.c.dot};display:inline-block;flex-shrink:0"></span>${p.name||'?'}${isFoodPayer?' 🍕':''}</div>
+      <div class="nv">${p.net===0?'Even':(p.net>0?'+':'')+p.net}</div>
+      ${isFoodPayer?`<div style="font-size:10px;color:#c06030;margin-top:2px">+${foodAmt} from Pot 🏆</div>`:''}
+    </div>`;
+  }).join('');
+  const potNS=(chipDiff!==0||foodAmt>0)?`<div class="nscard potn"><div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:#e6a820;display:inline-block;flex-shrink:0"></span>Pot</div><div class="nv">${finalPotCount>=0?'+':''}${finalPotCount}</div><div style="font-size:10px;color:#b07820;margin-top:2px">final balance</div></div>`:'';
+  const foodNS=foodAmt>0&&foodPaidBy?`<div class="nscard" style="background:#fff5f0;border-color:#f5874a"><div class="nl" style="color:#c06030"><span style="font-size:12px">🍕</span>Food paid</div><div class="nv" style="color:#7a2800">-${foodAmt}</div><div style="font-size:10px;color:#c06030;margin-top:2px">by ${foodPaidBy}</div></div>`:'';
+
+  const pillCls=p=>p.fp&&!p.toPotIn?'from-pot':p.tp&&p.toPotIn?'to-pot':'player';
+  const payHTML=pays.length===0
+    ?`<div class="allsq"><div class="big">🎉</div>All square — no payments needed!</div>`
+    :`<div class="paylist">${pays.map(p=>`<div class="payrow">
+        <div class="pav" style="background:${p.fc.bg};color:${p.fc.text};border-color:${p.fc.cbg}">${p.from.slice(0,2).toUpperCase()}</div>
+        <span class="pnm">${p.from}</span>
+        <div class="arrwrap"><div class="aline"></div><div class="ahead">→</div><div class="aline"></div></div>
+        <span class="pnm" style="text-align:right">${p.to}</span>
+        <div class="pav" style="background:${p.tc.bg};color:${p.tc.text};border-color:${p.tc.cbg}">${p.to.slice(0,2).toUpperCase()}</div>
+        <span class="ppill ${pillCls(p)}">${p.chips} chips${p.fp&&!p.toPotIn?' 🏆':p.tp&&p.toPotIn?' →🏆':''}</span>
+      </div>`).join('')}</div>`;
+
+  window._lastPays=pays;
+  const res=document.getElementById('results');
+  res.style.display='block';
+  res.innerHTML=`<div class="res-hd"><div class="res-title">♠ Final Results</div><div class="res-sub">${players.length} players · ${pays.length} payment${pays.length!==1?'s':''}</div></div>
+  <div class="res-body">
+    <div class="trio">
+      <div class="tcell"><div class="tl">Total won</div><div class="tv">+${totalWon}</div><div class="ts">chips gained</div></div>
+      <div class="tcell"><div class="tl">Total lost</div><div class="tv">-${totalLost}</div><div class="ts">chips given up</div></div>
+      <div class="tcell ${potTrioCls}"><div class="tl">Pot balance</div><div class="tv">${finalPotCount>=0?'+':''}${finalPotCount}</div><div class="ts">after food &amp; chips</div></div>
+    </div>
+    ${foodNotice}${potNotice}
+    <hr class="divider"><div class="slbl">Leaderboard</div><div class="lb">${lbRows}</div>
+    <hr class="divider"><div class="slbl">Net gains &amp; losses</div><div class="nsgrid">${nsCards}${potNS}${foodNS}</div>
+    <hr class="divider"><div class="slbl">Who pays whom — ${pays.length} transaction${pays.length!==1?'s':''}</div>${payHTML}
+    <button class="btn-save" onclick="saveSession()">💾 Save this session to history</button>
+    <div class="save-confirm" id="saveConfirm">✅ Session saved! Check the History &amp; Trends tabs.</div>
+  </div>`;
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ══ STORAGE ══ */
+function loadSessions(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
+function saveSessions(s){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));}catch(e){alert('Could not save: '+e.message);}}
+
+function saveSession(){
+  const nets=players.map(p=>({name:p.name||'?',net:p.end-p.start,start:p.start,end:p.end}));
+  if(nets.every(p=>p.net===0)){alert('All players are even — nothing to save!');return;}
+  const {potGets,potPays,finalPotCount}=calcPotFlow();
+  const foodAmt=+document.getElementById('foodAmount').value||0;
+  const foodPaidBy=migrateName(document.getElementById('foodPaidBy').value||'');
+  // Capture current payments for settlement tracker
+  const lastPays=window._lastPays||[];
+  const settlements=lastPays.map(p=>({from:p.from,to:p.to,chips:p.chips,fromPot:p.fp||false,toPot:p.tp||false,settled:false}));
+  const session={id:Date.now(),date:new Date().toISOString(),players:nets,potGets,potPays,finalPotCount,foodAmt,foodPaidBy,settlements};
+  const all=loadSessions();
+  all.push(session);
+  saveSessions(all);
+  document.getElementById('saveConfirm').style.display='block';
+  renderHistory();renderTrends();
+}
+
+function deleteSession(id){
+  if(!confirm('Delete this session?'))return;
+  saveSessions(loadSessions().filter(s=>s.id!==id));
+  renderHistory();renderTrends();
+}
+
+function clearHistory(){
+  if(!confirm('Clear ALL session history? This cannot be undone.'))return;
+  saveSessions([]);
+  renderHistory();renderTrends();
+}
+
+/* ── Edit session modal ── */
+let editingSessionId = null;
+
+function openEditModal(id){
+  const sessions = loadSessions();
+  const s = sessions.find(x=>x.id===id);
+  if(!s) return;
+  editingSessionId = id;
+  const d = new Date(s.date);
+  document.getElementById('editModalDate').textContent = d.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})+' — '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('editFoodAmt').value = s.foodAmt||0;
+  document.getElementById('editFoodPaidBy').value = s.foodPaidBy||'';
+  const rows = document.getElementById('editPlayerRows');
+  rows.innerHTML = s.players.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:13px;font-weight:700;color:#1c2e1c;flex:1">${p.name}</span>
+      <input type="number" id="editNet_${i}" value="${p.net}" style="width:90px;font-size:14px;padding:5px 8px;border-radius:8px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;text-align:right;font-weight:700">
+      <span style="font-size:11px;color:#7a9a7a;width:40px">chips</span>
+    </div>`).join('');
+  const modal = document.getElementById('editModal');
+  modal.style.display = 'flex';
+}
+
+function closeEditModal(){
+  document.getElementById('editModal').style.display = 'none';
+  editingSessionId = null;
+}
+
+function saveEditSession(){
+  const sessions = loadSessions();
+  const idx = sessions.findIndex(x=>x.id===editingSessionId);
+  if(idx===-1) return;
+  const s = sessions[idx];
+  s.players = s.players.map((p,i)=>({...p, net: +document.getElementById('editNet_'+i).value||0}));
+  s.foodAmt = +document.getElementById('editFoodAmt').value||0;
+  s.foodPaidBy = document.getElementById('editFoodPaidBy').value.trim();
+  // Recalc pot
+  const totalWon  = s.players.reduce((sum,p)=>sum+(p.net>0?p.net:0),0);
+  const totalLost = s.players.reduce((sum,p)=>sum+(p.net<0?-p.net:0),0);
+  const chipDiff  = totalLost - totalWon;
+  s.potGets = Math.max(0, chipDiff);
+  s.potPays = Math.max(0, -chipDiff);
+  s.finalPotCount = (s.potFinal||0) + chipDiff - s.foodAmt;
+  sessions[idx] = s;
+  saveSessions(sessions);
+  closeEditModal();
+  renderHistory();
+  renderTrends();
+}
+
+function toggleSettled(sessionId, idx){
+  const sessions=loadSessions();
+  const s=sessions.find(x=>x.id===sessionId);
+  if(!s||!s.settlements) return;
+  s.settlements[idx].settled=!s.settlements[idx].settled;
+  saveSessions(sessions);
+  renderHistory();
+}
+
+function toggleSettleTracker(sessionId){
+  const el=document.getElementById('strows_'+sessionId);
+  const arrow=document.getElementById('starrow_'+sessionId);
+  if(!el) return;
+  const hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  arrow.textContent=hidden?'▲':'▼';
+}
+
+function renderHistory(){
+  const sessions=loadSessions().slice().reverse();
+  const el=document.getElementById('histBody');
+  if(!sessions.length){el.innerHTML='<div class="no-hist"><div class="big">📭</div>No sessions saved yet.<br>Settle a game and hit "Save session"!</div>';return;}
+  el.innerHTML=sessions.map(s=>{
+    const d=new Date(s.date);
+    const ds=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+' — '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    const cards=[...s.players].sort((a,b)=>b.net-a.net).map(p=>{
+      const displayNet=p.net;
+      const cls=displayNet>0?'swon':displayNet<0?'slost':'seven';
+      const label=s.foodPaidBy&&p.name===s.foodPaidBy&&s.foodAmt>0?' 🍕':'';
+      return `<div class="sess-player ${cls}"><span class="sess-name">${p.name}${label}</span><span class="sess-net">${displayNet===0?'±0':(displayNet>0?'+':'')+displayNet}</span></div>`;
+    }).join('');
+    const foodLine=s.foodAmt>0?`<div style="margin-top:6px;font-size:11px;color:#c06030;font-weight:600">🍕 Food &amp; Other Expenses: ${s.foodAmt} chips${s.foodPaidBy?' (paid by '+s.foodPaidBy+')':''}</div>`:'';
+
+    // Settlement tracker
+    let settleTrackerHTML='';
+    if(s.settlements&&s.settlements.length>0){
+      const doneCount=s.settlements.filter(x=>x.settled).length;
+      const total=s.settlements.length;
+      const allDone=doneCount===total;
+      const rows=s.settlements.map((pay,idx)=>`
+        <div class="settle-item ${pay.settled?'done':''}">
+          <span class="settle-from">${pay.from}</span>
+          <span class="settle-arrow">→</span>
+          <span class="settle-to">${pay.to}</span>
+          <span class="settle-chips ${pay.fromPot||pay.toPot?'pot':''}">${pay.chips} chips${pay.fromPot?' 🏆':pay.toPot?' →🏆':''}</span>
+          <div class="settle-status">
+            <div class="settle-check ${pay.settled?'checked':''}" onclick="toggleSettled(${s.id},${idx})">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:${pay.settled?'#2d7a4f':'#c0c0c0'};font-weight:600">${pay.settled?'Paid':'Pending'}</span>
+          </div>
+        </div>`).join('');
+      settleTrackerHTML=`<div class="settle-tracker">
+        <div class="settle-tracker-hd" onclick="toggleSettleTracker(${s.id})">
+          <div class="settle-tracker-hd-lbl">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#2d7a4f" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 4" stroke="#2d7a4f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Settlements
+            <span style="background:${allDone?'#2d7a4f':'#e6a820'};color:#fff;border-radius:999px;padding:1px 7px;font-size:10px">${doneCount}/${total} paid</span>
+          </div>
+          <span class="settle-tracker-toggle" id="starrow_${s.id}">▼</span>
+        </div>
+        <div id="strows_${s.id}" style="display:none">
+          <div class="settle-rows">${rows}</div>
+          <div class="settle-summary">${allDone?'<span class="done-count">✅ All settled!</span>':'<span class="done-count">'+doneCount+'</span> of '+total+' payments done · <span style="color:#c87800;font-weight:700">'+(total-doneCount)+' pending</span>'}</div>
+        </div>
+      </div>`;
+    } else if(s.settlements&&s.settlements.length===0){
+      settleTrackerHTML=`<div style="margin-top:6px;font-size:11px;color:#7a9a7a;font-style:italic">✅ All square — no payments needed</div>`;
+    }
+
+    return `<div class="session-card">
+      <div class="session-date">
+        <span>📅 ${ds}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-del-sess" style="border-color:#b8d8b8;color:#2d7a4f" onclick="openEditModal(${s.id})">✏ Edit</button>
+          <button class="btn-del-sess" onclick="deleteSession(${s.id})">✕ Delete</button>
+        </div>
+      </div>
+      <div class="session-players">${cards}${s.potGets>0?`<div class="sess-player" style="background:#fffbf0;border-color:#f6c343;color:#7a4e00"><span class="sess-name">Pot</span><span class="sess-net">+${s.potGets}</span></div>`:''}${s.potPays>0?`<div class="sess-player" style="background:#fffbf0;border-color:#f6c343;color:#7a4e00"><span class="sess-name">Pot</span><span class="sess-net">-${s.potPays}</span></div>`:''}</div>
+      ${foodLine}
+      ${settleTrackerHTML}
+    </div>`;
+  }).join('');
+}
+
+function renderTrends(){
+  try{
+  const sessions=loadSessions();
+  const panel=document.getElementById('trendsPanel');
+  if(!sessions.length){panel.innerHTML='<div class="trend-card"><div style="text-align:center;padding:2rem;color:#7a9a7a;font-size:14px"><div style="font-size:40px;margin-bottom:10px">📊</div>No data yet.<br>Save a few sessions to see trends!</div></div>';return;}
+  // Aggregate per player
+  const stats={};
+  sessions.forEach(s=>{
+    s.players.forEach(p=>{
+      if(!stats[p.name])stats[p.name]={name:p.name,sessions:0,wins:0,losses:0,totalNet:0,nets:[],dates:[]};
+      const effNet=p.net;
+      stats[p.name].sessions++;
+      stats[p.name].totalNet+=effNet;
+      stats[p.name].nets.push(effNet);
+      stats[p.name].dates.push(s.date);
+      if(effNet>0)stats[p.name].wins++;
+      else if(effNet<0)stats[p.name].losses++;
+    });
+  });
+  const players_s=Object.values(stats).sort((a,b)=>b.totalNet-a.totalNet);
+  const maxTotalAbs=Math.max(...players_s.map(p=>Math.abs(p.totalNet)),1);
+  // Streaks
+  function calcStreak(nets){let s=0,cur=nets[nets.length-1]>0?'W':nets[nets.length-1]<0?'L':'E';for(let i=nets.length-1;i>=0;i--){const t=nets[i]>0?'W':nets[i]<0?'L':'E';if(t===cur)s++;else break;}return{streak:s,type:cur};}
+  const totalSess=sessions.length;
+  const bigWinner=players_s[0];
+  const bigLoser=players_s[players_s.length-1];
+
+  // Generate funny tags ONCE per player based on rank — deterministic so both panels match
+  const WIN_PLAYER_TAGS=[
+    ['చిప్పుల చక్రవర్తి 👑','Chip Emperor'],['పైసల పులి 🐯','Money Tiger'],
+    ['Table Destroyer 💥','Boom!'],['Luck Thief 🦝','Sneaky wins'],
+    ['Chip Hoarder 🐉','Stacking up'],['వీడు దొంగ! 🚨','Thief alert!'],
+    ['అందరినీ దోచాడు 💰','Robbed all'],['Pocket Full 😏','Loaded'],
+    ['ATM on Legs 🏧','Cash machine'],['The Untouchable 🕶️','Untouchable'],
+    ['Quiet Killer 🎯','Sneaky'],['Raja Babu 🤴','King!'],
+  ];
+  const LOSE_PLAYER_TAGS=[
+    ['Chips Sponsor 🫡','Funding wins'],['Most Generous 🤝','Giving back'],
+    ['Table Philanthropist 💝','Donating chips'],['చాలా Brave 🦁','Played bold'],
+    ['బంగారు మనసు 🥹','Golden heart'],['Practice Mode 🎮','Getting there'],
+    ['Warming Up 🔥','Next time!'],['Long Game ♟️','Strategic'],
+    ['చుట్టూ పంచాడు 🎁','Shared all'],['Star of Next Session ⭐','Watch out!'],
+    ['Coming Soon 🚀','Loading...'],['Plotting Revenge 😤','Comeback soon'],
+  ];
+  const EVEN_PLAYER_TAGS=[
+    ['Perfect Balance ⚖️','Zen master'],['Neither Side 🤷','Just vibing'],
+  ];
+
+  // Assign tag per player based on sorted rank (consistent, not random)
+  const playerTags={};
+  let wi=0,li=0,ei=0;
+  players_s.forEach(p=>{
+    if(p.totalNet>0){ playerTags[p.name]=WIN_PLAYER_TAGS[wi%WIN_PLAYER_TAGS.length]; wi++; }
+    else if(p.totalNet<0){ playerTags[p.name]=LOSE_PLAYER_TAGS[li%LOSE_PLAYER_TAGS.length]; li++; }
+    else { playerTags[p.name]=EVEN_PLAYER_TAGS[ei%EVEN_PLAYER_TAGS.length]; ei++; }
+  });
+
+  // Top earner tag = playerTags[bigWinner]
+  const topEarnerTag = bigWinner ? playerTags[bigWinner.name][0] : '';
+  const bigLoserTag  = bigLoser && bigLoser!==bigWinner ? playerTags[bigLoser.name][0] : '';
+
+  let html='';
+  // Overview stats
+  html+=`<div class="trend-card"><div class="trend-title"><span>📈</span>Overview — ${totalSess} session${totalSess!==1?'s':''}</div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="sb-lbl">Sessions</div><div class="sb-val">${totalSess}</div><div class="sb-sub">game nights</div></div>
+    <div class="stat-box"><div class="sb-lbl">Players tracked</div><div class="sb-val">${players_s.length}</div><div class="sb-sub">unique players</div></div>
+    ${bigWinner?`<div class="stat-box green"><div class="sb-lbl">${topEarnerTag}</div><div class="sb-val">${bigWinner.name}</div><div class="sb-sub">+${bigWinner.totalNet} total</div></div>`:''}
+    ${bigLoser&&bigLoser!==bigWinner?`<div class="stat-box red"><div class="sb-lbl">${bigLoserTag}</div><div class="sb-val">${bigLoser.name}</div><div class="sb-sub">${bigLoser.totalNet} total</div></div>`:''}
+  </div></div>`;
+  html+=`<div class="trend-card"><div class="trend-title"><span>🏆</span>All-time Chip Tally</div>`;
+  html+=`<div class="all-time-grid">`+players_s.map(p=>{
+    const pct=Math.round(Math.abs(p.totalNet)/maxTotalAbs*100);
+    const barCol=p.totalNet>0?'#2d7a4f':p.totalNet<0?'#d03030':'#9ab89a';
+    const cardBg=p.totalNet>0?'background:#f0faf2;border-color:#a8dab8':p.totalNet<0?'background:#fff5f5;border-color:#f0b8b8':'background:#f6fbf6;border-color:#e0eee0';
+    const c=palFor(p.name);
+    const tag=playerTags[p.name]||['',''];
+    return `<div class="at-card" style="${cardBg}">
+      <div class="at-name"><span style="width:10px;height:10px;border-radius:50%;background:${c.dot};display:inline-block;flex-shrink:0"></span>${p.name}</div>
+      <div style="font-size:10px;font-weight:700;color:${p.totalNet>0?'#1a6b3a':p.totalNet<0?'#b02020':'#5a7a5a'};margin-bottom:5px;line-height:1.2">${tag[0]}</div>
+      <div class="at-stat"><span class="at-lbl">Total</span><span class="at-val ${p.totalNet>0?'pos':p.totalNet<0?'neg':''}">${p.totalNet>0?'+':''}${p.totalNet}</span></div>
+      <div class="at-stat"><span class="at-lbl">Sessions</span><span class="at-val">${p.sessions}</span></div>
+      <div class="at-stat"><span class="at-lbl">W / L</span><span class="at-val">${p.wins}W ${p.losses}L</span></div>
+      <div class="at-bar-bg"><div class="at-bar-fg" style="width:${pct}%;background:${barCol}"></div></div>
+    </div>`;
+  }).join('')+'</div></div>';
+  // Streaks
+  html+=`<div class="trend-card"><div class="trend-title"><span>🔥</span>Current Streaks</div>`;
+  players_s.filter(p=>p.nets.length>0).forEach(p=>{
+    const {streak,type}=calcStreak(p.nets);
+    const cls=type==='W'?'streak-w':type==='L'?'streak-l':'streak-n';
+    const lbl=type==='W'?`🔥 ${streak}-win streak`:type==='L'?`❄️ ${streak}-loss streak`:`🤝 ${streak} even`;
+    html+=`<div class="streak-row"><span class="streak-name">${p.name}</span><span class="streak-badge ${cls}">${lbl}</span></div>`;
+  });
+  html+='</div>';
+  // Session dots per player
+  // ── Running Total Line Chart ──
+  if(sessions.length>=2){
+    const sortedSess=[...sessions].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    // Build cumulative nets: each player starts at 0
+    const cumData={}; // name → [0, c1, c2, ...]
+    players_s.forEach(p=>{ cumData[p.name]=[0]; });
+    sortedSess.forEach(s=>{
+      players_s.forEach(({name})=>{
+        const prev=cumData[name][cumData[name].length-1];
+        const found=s.players.find(p=>p.name===name);
+        cumData[name].push(prev+(found?found.net:0));
+      });
+    });
+
+    const W=600,H=260,PL=52,PR=20,PT=20,PB=40;
+    const cW=W-PL-PR, cH=H-PT-PB;
+    const allVals=Object.values(cumData).flat();
+    const minV=Math.min(...allVals,0), maxV=Math.max(...allVals,0);
+    const span=maxV-minV||1;
+    const numPts=sortedSess.length+1;
+    const xOf=i=>PL+i*(cW/(numPts-1));
+    const yOf=v=>PT+cH-(((v-minV)/span)*cH);
+    const zeroY=yOf(0);
+
+    // Y-axis nice labels
+    const yTicks=5;
+    let svgGrid='';
+    for(let i=0;i<=yTicks;i++){
+      const v=minV+(span/yTicks)*i;
+      const y=yOf(v);
+      const label=`${v>=0?'+':''}${Math.round(v)}`;
+      svgGrid+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#eaf2ea" stroke-width="1"/>
+<text x="${PL-6}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#aac8aa">${label}</text>`;
+    }
+
+    // Zero line
+    const zeroLine=`<line x1="${PL}" y1="${zeroY.toFixed(1)}" x2="${W-PR}" y2="${zeroY.toFixed(1)}" stroke="#c0d8c0" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text x="${PL-6}" y="${(zeroY+4).toFixed(1)}" text-anchor="end" font-size="9" font-weight="700" fill="#7a9a7a">0</text>`;
+
+    // X-axis labels
+    let svgXLabels=`<text x="${xOf(0).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9" fill="#aac8aa">Start</text>`;
+    sortedSess.forEach((s,i)=>{
+      const x=xOf(i+1);
+      const lbl=new Date(s.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+      svgXLabels+=`<text x="${x.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9" fill="#7a9a7a">${lbl}</text>`;
+    });
+
+    // Lines + dots per player
+    let svgLines='', svgDots='';
+    players_s.forEach(({name},pi)=>{
+      const col=palFor(name).dot;
+      const vals=cumData[name];
+      const ptStr=vals.map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+      svgLines+=`<polyline points="${ptStr}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      vals.forEach((v,i)=>{
+        const cx=xOf(i).toFixed(1), cy=yOf(v).toFixed(1);
+        const tip=`${name}: ${v>0?'+':''}${v}`;
+        svgDots+=`<circle cx="${cx}" cy="${cy}" r="4" fill="${col}" stroke="#fff" stroke-width="1.5" style="cursor:pointer"><title>${tip}</title></circle>`;
+      });
+    });
+
+    const svgEl=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+      ${svgGrid}${zeroLine}${svgXLabels}
+      <line x1="${PL}" y1="${PT}" x2="${PL}" y2="${PT+cH}" stroke="#c0d8c0" stroke-width="1"/>
+      ${svgLines}${svgDots}
+    </svg>`;
+
+    // Legend
+    const legend=players_s.map(({name},i)=>{
+      const col=palFor(name).dot;
+      const last=cumData[name][cumData[name].length-1];
+      const sign=last>0?'+':last<0?'':' ';
+      return `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#374151;background:#f6fbf6;border:1px solid #e0eee0;border-radius:6px;padding:3px 8px;margin:2px">
+        <span style="width:16px;height:3px;background:${col};border-radius:2px;display:inline-block;flex-shrink:0"></span>
+        ${name} <span style="color:${last>0?'#1a6b3a':last<0?'#c03030':'#7a9a7a'};font-weight:700">${sign}${last}</span>
+      </span>`;
+    }).join('');
+
+    html+=`<div class="trend-card">
+      <div class="trend-title"><span>📈</span>Running Total — cumulative chips over time</div>
+      <div style="overflow-x:auto;margin:0 -4px">${svgEl}</div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:2px">${legend}</div>
+    </div>`;
+  }
+
+  html+=`<div class="trend-card"><div class="trend-title"><span>🎯</span>Session-by-Session (each dot = one game)</div>`;
+  players_s.forEach(p=>{
+    const dots=p.nets.map(n=>{
+      const col=n>0?'#2d7a4f':n<0?'#d03030':'#9ab89a';
+      const tip=n===0?'Even':(n>0?'+':'')+n;
+      return `<div class="sess-dot" style="background:${col}" title="${tip}"></div>`;
+    }).join('');
+    html+=`<div class="mc-row"><div class="mc-name">${p.name}</div><div style="flex:1;display:flex;gap:3px;flex-wrap:wrap;align-items:center">${dots}</div></div>`;
+  });
+  html+='</div>';
+  panel.innerHTML=html;
+  }catch(e){document.getElementById('trendsPanel').innerHTML=`<div class="trend-card" style="color:#c03030;font-size:13px;padding:1rem">⚠️ Trends error: ${e.message}<br><pre style="font-size:10px;margin-top:8px;white-space:pre-wrap">${e.stack}</pre></div>`;}
+}
+
+function exportCSV(){
+  const sessions=loadSessions();
+  if(!sessions.length){alert('No sessions to export!');return;}
+  const allNames=[...new Set(sessions.flatMap(s=>s.players.map(p=>p.name)))];
+  const header=['Date',...allNames,'Pot Gets','Pot Pays'];
+  const rows=sessions.map(s=>{
+    const d=new Date(s.date).toLocaleDateString('en-IN');
+    const netMap={};s.players.forEach(p=>netMap[p.name]=p.net);
+    return [d,...allNames.map(n=>netMap[n]!==undefined?netMap[n]:''),s.potGets||0,s.potPays||0];
+  });
+  const csv=[header,...rows].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='chipkings_history.csv';
+  a.click();
+}
+
+function exportJSON(){
+  const sessions=loadSessions();
+  if(!sessions.length){alert('No sessions to export!');return;}
+  const payload={app:'ChipKings',version:1,exportedAt:new Date().toISOString(),sessions};
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(payload,null,2));
+  const date=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'');
+  a.download=`chipkings_backup_${date}.json`;
+  a.click();
+}
+
+function importJSON(input){
+  const file=input.files[0];
+  if(!file) return;
+  const msg=document.getElementById('importMsg');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const payload=JSON.parse(e.target.result);
+      // Validate structure
+      if(!payload.sessions||!Array.isArray(payload.sessions)){
+        showImportMsg('❌ Invalid backup file — no sessions found.','#fff5f5','#c03030');
+        return;
+      }
+      const incoming=payload.sessions;
+      const existing=loadSessions();
+      // Merge: use session id as unique key — keep existing, add any new ones from import
+      const existingIds=new Set(existing.map(s=>s.id));
+      const newSessions=incoming.filter(s=>!existingIds.has(s.id));
+      const merged=[...existing,...newSessions].sort((a,b)=>new Date(a.date)-new Date(b.date));
+      saveSessions(merged);
+      // Re-run migration to ensure all imported sessions are properly patched
+      migrateAndPatchSessions();
+      renderHistory();
+      renderTrends();
+      const added=newSessions.length;
+      const skipped=incoming.length-added;
+      showImportMsg(
+        `✅ Import successful! ${added} new session${added!==1?'s':''} added${skipped>0?', '+skipped+' already existed':''}.`,
+        '#f0faf2','#1a6b3a'
+      );
+    }catch(err){
+      showImportMsg('❌ Could not read file: '+err.message,'#fff5f5','#c03030');
+    }
+    input.value=''; // reset so same file can be imported again if needed
+  };
+  reader.readAsText(file);
+}
+
+function showImportMsg(text,bg,color){
+  const el=document.getElementById('importMsg');
+  el.style.display='block';
+  el.style.background=bg;
+  el.style.color=color;
+  el.style.border=`1px solid ${color}40`;
+  el.textContent=text;
+  setTimeout(()=>el.style.display='none',5000);
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
+  event.target.classList.add('active');
+  if(name==='history')renderHistory();
+  if(name==='trends')renderTrends();
+}
+
+migrateAndPatchSessions();
+buildPlayers();
+renderHistory();
+renderTrends();
+</script>
+</body>
+</html>
