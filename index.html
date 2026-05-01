@@ -209,6 +209,42 @@ input[type=number]{width:86px;text-align:right}
 .hist-panel{background:#fff;border:1px solid #c0d8c0;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .hist-hd{padding:14px 18px;background:#2d7a4f;display:flex;align-items:center;justify-content:space-between}
 .hist-hd-title{font-size:16px;font-weight:800;color:#fff}
+/* Multi-session settle */
+.multi-settle-bar{background:#eef5ee;border:1px solid #c0d8c0;border-radius:12px;padding:10px 14px;margin:0 14px 10px;display:none}
+.multi-settle-bar.active{display:block}
+.multi-select-hint{font-size:12px;color:#4a7a52;font-weight:600;margin-bottom:8px}
+.btn-multi-settle{font-size:13px;font-weight:700;padding:8px 20px;border-radius:9px;border:none;background:#2d7a4f;color:#fff;cursor:pointer;transition:all .2s}
+.btn-multi-settle:hover{background:#1e5c38}
+.btn-multi-cancel{font-size:13px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid #c0d8c0;background:#fff;color:#6a8c6a;cursor:pointer}
+.sess-checkbox{width:18px;height:18px;border-radius:5px;border:2px solid #c0d8c0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.sess-checkbox.checked{background:#2d7a4f;border-color:#2d7a4f}
+.sess-checkbox svg{display:none}
+.sess-checkbox.checked svg{display:block}
+.session-card.selecting{cursor:pointer}
+.session-card.selected{border-color:#2d7a4f;background:#f0faf2;box-shadow:0 0 0 2px #a8dab8}
+/* Multi-settle result modal */
+.multi-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.multi-modal.open{display:flex}
+.multi-modal-box{background:#fff;border-radius:16px;max-width:540px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.multi-modal-hd{padding:16px 20px;background:#2d7a4f;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}
+.multi-modal-title{font-size:16px;font-weight:800;color:#fff}
+.multi-modal-close{font-size:20px;color:#a8d8b8;cursor:pointer;background:none;border:none;line-height:1;padding:0 4px}
+.multi-modal-body{padding:1.25rem}
+.session-tag{display:inline-flex;align-items:center;gap:5px;background:#e8f2e8;border:1px solid #c0d8c0;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;color:#2d7a4f;margin:2px}
+.combined-net-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:10px 0}
+.cn-card{border-radius:9px;padding:8px 10px;border:1px solid transparent}
+.cn-card.win{background:#f0faf2;border-color:#a8dab8}
+.cn-card.lose{background:#fff5f5;border-color:#f0b8b8}
+.cn-card.even{background:#f6fbf6;border-color:#e0eee0}
+.cn-name{font-size:11px;font-weight:700;margin-bottom:3px}
+.cn-card.win .cn-name{color:#2d7a4f}
+.cn-card.lose .cn-name{color:#c03030}
+.cn-card.even .cn-name{color:#7a9a7a}
+.cn-val{font-size:16px;font-weight:800}
+.cn-card.win .cn-val{color:#1a6b3a}
+.cn-card.lose .cn-val{color:#d03030}
+.cn-card.even .cn-val{color:#7a9a7a}
+.wa-btn-multi{width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:10px;border-radius:10px;border:none;background:#25d366;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-export{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;cursor:pointer;transition:all .2s}
 .btn-export:hover{background:rgba(255,255,255,.25)}
 .btn-clear-hist{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,100,100,.5);background:rgba(255,100,100,.15);color:#ffd0d0;cursor:pointer;transition:all .2s}
@@ -420,6 +456,7 @@ input[type=number]{width:86px;text-align:right}
     <div class="hist-hd">
       <div class="hist-hd-title">📅 Session History</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-export" onclick="startMultiSettle()" title="Settle multiple sessions together">🔗 Multi-settle</button>
         <button class="btn-export" onclick="exportJSON()" title="Export all sessions as a backup file">⬇ Export backup</button>
         <label class="btn-export" style="cursor:pointer" title="Import sessions from a backup file — merges with existing data">
           ⬆ Import backup
@@ -429,9 +466,27 @@ input[type=number]{width:86px;text-align:right}
         <button class="btn-clear-hist" onclick="clearHistory()">🗑 Clear All</button>
       </div>
     </div>
+    <div class="multi-settle-bar" id="multiSettleBar">
+      <div class="multi-select-hint" id="multiSelectHint">☑ Select 2 or more sessions below to settle together</div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn-multi-settle" onclick="runMultiSettle()">⚡ Settle Selected Sessions</button>
+        <button class="btn-multi-cancel" onclick="cancelMultiSettle()">✕ Cancel</button>
+      </div>
+    </div>
     <div id="importMsg" style="display:none;margin:8px 14px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600"></div>
     <div class="hist-body" id="histBody"></div>
   </div>
+
+<!-- Multi-session settle modal -->
+<div class="multi-modal" id="multiModal">
+  <div class="multi-modal-box">
+    <div class="multi-modal-hd">
+      <div class="multi-modal-title">⚡ Multi-Session Settlement</div>
+      <button class="multi-modal-close" onclick="closeMultiModal()">✕</button>
+    </div>
+    <div class="multi-modal-body" id="multiModalBody"></div>
+  </div>
+</div>
 </div>
 
 <!-- ══ TRENDS PAGE ══ -->
@@ -998,6 +1053,173 @@ function saveEditSession(){
   renderTrends();
 }
 
+/* ── Multi-session settlement ── */
+let multiSelectMode=false;
+let selectedSessions=new Set();
+
+function startMultiSettle(){
+  const sessions=loadSessions();
+  if(sessions.length<2){alert('You need at least 2 saved sessions to use multi-settle.');return;}
+  multiSelectMode=true;
+  selectedSessions.clear();
+  document.getElementById('multiSettleBar').classList.add('active');
+  renderHistory();
+}
+
+function cancelMultiSettle(){
+  multiSelectMode=false;
+  selectedSessions.clear();
+  document.getElementById('multiSettleBar').classList.remove('active');
+  document.getElementById('multiSelectHint').textContent='☑ Select 2 or more sessions below to settle together';
+  renderHistory();
+}
+
+function toggleSessionSelect(id){
+  if(selectedSessions.has(id)) selectedSessions.delete(id);
+  else selectedSessions.add(id);
+  const count=selectedSessions.size;
+  const hint=document.getElementById('multiSelectHint');
+  if(count===0) hint.textContent='☑ Select 2 or more sessions below to settle together';
+  else if(count===1) hint.textContent='✅ 1 session selected — select at least 1 more';
+  else hint.textContent=`✅ ${count} sessions selected — ready to settle!`;
+  renderHistory();
+}
+
+function runMultiSettle(){
+  if(selectedSessions.size<2){alert('Please select at least 2 sessions to settle together.');return;}
+  const all=loadSessions();
+  const chosen=all.filter(s=>selectedSessions.has(s.id)).sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  // Validation: warn about already fully settled sessions
+  const fullySettled=chosen.filter(s=>s.settlements&&s.settlements.length>0&&s.settlements.every(x=>x.settled));
+  if(fullySettled.length>0){
+    const names=fullySettled.map(s=>new Date(s.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})).join(', ');
+    if(!confirm(`Note: ${fullySettled.length} selected session(s) are already fully settled (${names}).\n\nContinue anyway?`)) return;
+  }
+
+  // Build combined balance map across all selected sessions
+  const balMap={};
+  let totalFoodAmt=0;
+  const allFoodEntries=[];
+
+  chosen.forEach(s=>{
+    // Player nets
+    s.players.forEach(p=>{
+      if(!balMap[p.name]) balMap[p.name]={name:p.name,c:palFor(p.name),net:0,isPot:false};
+      balMap[p.name].net+=p.net;
+    });
+    // Food entries — each payer gets credited
+    const foodEntries=s.foodEntries&&s.foodEntries.length?s.foodEntries.filter(r=>r.amt>0):s.foodAmt>0?[{amt:s.foodAmt,paidBy:s.foodPaidBy||''}]:[];
+    foodEntries.forEach(r=>{
+      if(r.amt>0){
+        allFoodEntries.push({...r,sessionDate:new Date(s.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})});
+        totalFoodAmt+=r.amt;
+        if(r.paidBy&&balMap[r.paidBy]) balMap[r.paidBy].net+=r.amt;
+        else if(r.paidBy) balMap[r.paidBy]={name:r.paidBy,c:palFor(r.paidBy),net:r.amt,isPot:false};
+      }
+    });
+  });
+
+  // Combined pot net across all sessions
+  let combinedPotNet=chosen.reduce((sum,s)=>{
+    const won=s.players.reduce((a,p)=>a+(p.net>0?p.net:0),0);
+    const lost=s.players.reduce((a,p)=>a+(p.net<0?-p.net:0),0);
+    return sum+(lost-won); // positive = surplus to pot, negative = pot pays
+  },0)-totalFoodAmt; // pot also pays food
+
+  if(Math.abs(combinedPotNet)>0){
+    balMap['Pot']={name:'Pot',c:POT_C,net:combinedPotNet,isPot:true,isPotIn:combinedPotNet>0};
+  }
+
+  // Validation: check all nets sum to ~0 (plus/minus pot)
+  const netSum=Object.values(balMap).filter(b=>!b.isPot).reduce((s,b)=>s+b.net,0);
+
+  const pays=normalizePayments(Object.values(balMap));
+  pays.forEach(p=>{if(p.from.endsWith('*'))p.from=p.from.slice(0,-1);if(p.to.endsWith('*'))p.to=p.to.slice(0,-1);});
+
+  // Build combined net display (excluding pot)
+  const combinedNets=Object.values(balMap).filter(b=>!b.isPot).sort((a,b)=>b.net-a.net);
+
+  // Render modal
+  const sessionTags=chosen.map(s=>{
+    const d=new Date(s.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    return `<span class="session-tag">📅 ${d}${s.venue?' · '+s.venue:''}</span>`;
+  }).join('');
+
+  const netCards=combinedNets.map(p=>{
+    const cls=p.net>0?'win':p.net<0?'lose':'even';
+    return `<div class="cn-card ${cls}">
+      <div class="cn-name">${p.name}</div>
+      <div class="cn-val">${p.net===0?'Even':(p.net>0?'+':'')+p.net}</div>
+    </div>`;
+  }).join('');
+
+  const payRows=pays.length===0
+    ?`<div style="text-align:center;padding:1.5rem;color:#6a8c6a;font-size:14px;font-weight:600">🎉 All square — no payments needed!</div>`
+    :pays.map(p=>`<div class="payrow ${p.fp||p.tp?'pot-row':''}">
+        <div class="pay-from">
+          <div class="pav" style="background:${p.fc.bg};color:${p.fc.text};border-color:${p.fc.cbg}">${p.from.slice(0,2).toUpperCase()}</div>
+          <span class="pnm">${p.from}</span>
+        </div>
+        <div class="pay-mid">
+          <span class="pay-chip-label ${p.fp?'pot-label':''}">${p.chips} chips${p.fp?' 🏆':''}</span>
+          <div class="pay-arrow-wrap"><div class="pay-line"></div><div class="pay-arrowhead">▶</div></div>
+        </div>
+        <div class="pay-to">
+          <div class="pav" style="background:${p.tc.bg};color:${p.tc.text};border-color:${p.tc.cbg}">${p.to.slice(0,2).toUpperCase()}</div>
+          <span class="pnm">${p.to}</span>
+        </div>
+      </div>`).join('');
+
+  const foodNote=allFoodEntries.length?`<div class="pot-notice" style="margin-bottom:.75rem">🍕 Food expenses included: ${allFoodEntries.map(r=>`${r.paidBy||'?'} paid ${r.amt} chips (${r.sessionDate})`).join(', ')} — reimbursed from Pot.</div>`:'';
+
+  const waMsg=buildMultiWAMsg(chosen,pays,allFoodEntries);
+
+  document.getElementById('multiModalBody').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#7a9a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Sessions included</div>
+      <div>${sessionTags}</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#7a9a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Combined net across ${chosen.length} sessions</div>
+    <div class="combined-net-grid">${netCards}</div>
+    <hr style="border:none;border-top:1px solid #e8f2e8;margin:.75rem 0">
+    <div style="font-size:11px;font-weight:700;color:#7a9a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Combined settlements — ${pays.length} transaction${pays.length!==1?'s':''} <span style="font-size:10px;color:#2d7a4f;font-weight:600">(optimized)</span></div>
+    ${foodNote}
+    <div class="paylist">${payRows}</div>
+    <button class="wa-btn-multi" onclick="shareMultiWhatsApp(${JSON.stringify(waMsg).replace(/"/g,'&quot;')})">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.1.549 4.07 1.51 5.773L0 24l6.406-1.482A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-4.987-1.362l-.358-.214-3.706.857.882-3.607-.234-.372A9.818 9.818 0 1112 21.818z"/></svg>
+      Share on WhatsApp
+    </button>
+  `;
+  document.getElementById('multiModal').classList.add('open');
+}
+
+function buildMultiWAMsg(sessions,pays,foodEntries){
+  let msg='♠ *Chip Kings — Multi-Session Settlement* ♣\n\n';
+  msg+='*Sessions:*\n';
+  sessions.forEach(s=>{
+    const d=new Date(s.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    msg+=`• ${d}${s.venue?' @ '+s.venue:''}\n`;
+  });
+  msg+='\n*Combined payments:*\n';
+  pays.forEach(p=>{ msg+=`• ${p.from} → ${p.to}: ${p.chips} chips${p.fp?' 🏆':''}\n`; });
+  if(foodEntries.length){
+    msg+='\n*🍕 Food expenses included:*\n';
+    foodEntries.forEach(r=>{ msg+=`• ${r.paidBy||'?'}: ${r.amt} chips (${r.sessionDate})\n`; });
+  }
+  msg+='\n_Settle all sessions in one go! 💰_';
+  return msg;
+}
+
+function shareMultiWhatsApp(msg){
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function closeMultiModal(){
+  document.getElementById('multiModal').classList.remove('open');
+  cancelMultiSettle();
+}
+
 function toggleSettled(sessionId, idx){
   const sessions=loadSessions();
   const s=sessions.find(x=>x.id===sessionId);
@@ -1069,17 +1291,23 @@ function renderHistory(){
       settleTrackerHTML=`<div style="margin-top:6px;font-size:11px;color:#7a9a7a;font-style:italic">✅ All square — no payments needed</div>`;
     }
 
-    return `<div class="session-card">
+    return `<div class="session-card ${multiSelectMode?'selecting':''} ${multiSelectMode&&selectedSessions.has(s.id)?'selected':''}" 
+        ${multiSelectMode?`onclick="toggleSessionSelect(${s.id})"`:''}>
       <div class="session-date">
-        <span>📅 ${ds}${s.venue?' &nbsp;·&nbsp; 📍 '+s.venue:''}</span>
-        <div style="display:flex;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          ${multiSelectMode?`<div class="sess-checkbox ${selectedSessions.has(s.id)?'checked':''}" onclick="event.stopPropagation();toggleSessionSelect(${s.id})">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>`:''}
+          <span style="font-size:12px;font-weight:700;color:#4a7a52">📅 ${ds}${s.venue?' &nbsp;·&nbsp; 📍 '+s.venue:''}</span>
+        </div>
+        ${!multiSelectMode?`<div style="display:flex;gap:6px">
           <button class="btn-del-sess" style="border-color:#b8d8b8;color:#2d7a4f" onclick="openEditModal(${s.id})">✏ Edit</button>
           <button class="btn-del-sess" onclick="deleteSession(${s.id})">✕ Delete</button>
-        </div>
+        </div>`:''}
       </div>
       <div class="session-players">${cards}</div>
       ${foodLine}
-      ${settleTrackerHTML}
+      ${!multiSelectMode?settleTrackerHTML:''}
     </div>`;
   }).join('');
 }
