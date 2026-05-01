@@ -103,20 +103,17 @@ input[type=number]{width:86px;text-align:right}
 /* ── Pot card ── */
 .pot-card{background:#fff;border:2px solid #e6a820;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(230,168,32,.12);margin-bottom:1rem}
 .pot-card-top{height:4px;background:linear-gradient(90deg,#e6a820,#f6c343,#e6a820)}
-.pot-card-body{display:flex;align-items:center;gap:14px;padding:13px 17px;flex-wrap:wrap}
-.pot-icon{width:42px;height:42px;border-radius:50%;background:#fffbf0;border:2px solid #f6c343;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.pot-info{flex:1;min-width:140px}
+.pot-card-body{display:flex;flex-direction:column;padding:13px 17px;gap:0}
+.pot-icon{width:40px;height:40px;border-radius:50%;background:#fffbf0;border:2px solid #f6c343;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .pot-title{font-size:14px;font-weight:800;color:#7a4e00}
 .pot-subtitle{font-size:11px;color:#b07820;margin-top:2px;line-height:1.4}
-.pot-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
 .pot-field{display:flex;flex-direction:column;gap:4px}
 .pot-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b07820}
-.pot-field input[type=number]{font-size:15px;padding:7px 11px;border-radius:9px;border:1.5px solid #e6a820;background:#fffbf0;color:#3d2800;text-align:right;width:120px;font-weight:700}
+.pot-field input[type=number]{font-size:14px;padding:7px 10px;border-radius:9px;border:1.5px solid #e6a820;background:#fffbf0;color:#3d2800;text-align:right;width:110px;font-weight:700}
 .pot-field input:focus{outline:none;border-color:#c87800;box-shadow:0 0 0 3px rgba(230,168,32,.15)}
 .pot-count-box{display:flex;flex-direction:column;gap:4px}
 .pot-count-box label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b07820}
-.pot-count-val{font-size:15px;padding:7px 11px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;text-align:right;width:120px;font-weight:700;min-height:37px;display:flex;align-items:center;justify-content:flex-end}
-
+.pot-count-val{font-size:14px;padding:7px 10px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;text-align:right;width:110px;font-weight:700;min-height:36px;display:flex;align-items:center;justify-content:flex-end}
 /* ── Actions ── */
 .actions{display:flex;gap:10px;justify-content:center;margin-bottom:1.4rem;flex-wrap:wrap}
 .btn-reset{font-size:14px;padding:10px 22px;border-radius:10px;border:1px solid #c0d8c0;background:#fff;color:#4a7a52;cursor:pointer;font-weight:600;transition:all .2s}
@@ -163,14 +160,19 @@ input[type=number]{width:86px;text-align:right}
 .nscard.win .nl{color:#2d7a4f}.nscard.lose .nl{color:#c03030}.nscard.even .nl{color:#6a8a6a}.nscard.potn .nl{color:#b07820}
 .nscard .nv{font-size:18px;font-weight:800}
 .nscard.win .nv{color:#1a6b3a}.nscard.lose .nv{color:#c03030}.nscard.even .nv{color:#7a9a7a}.nscard.potn .nv{color:#7a4e00}
-.paylist{display:flex;flex-direction:column}
-.payrow{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #e8f2e8}
-.payrow:last-child{border-bottom:none}
-.pav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;border:2px solid transparent}
-.pnm{font-size:13px;font-weight:700;color:#1c2e1c;min-width:50px}
-.arrwrap{flex:1;display:flex;align-items:center;gap:3px}
-.aline{flex:1;height:1px;background:#d0e8d0}
-.ahead{font-size:11px;color:#8ab88a}
+.paylist{display:flex;flex-direction:column;gap:6px}
+.payrow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:#f6fbf6;border:1px solid #e0eee0}
+.payrow.pot-row{background:#fffbf0;border-color:#fde68a}
+.pay-from{display:flex;align-items:center;gap:8px;width:80px;flex-shrink:0}
+.pay-to{display:flex;align-items:center;gap:8px;width:80px;flex-shrink:0;justify-content:flex-end;flex-direction:row-reverse}
+.pav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;border:2px solid transparent}
+.pnm{font-size:13px;font-weight:700;color:#1c2e1c}
+.pay-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pay-arrow-wrap{display:flex;align-items:center;width:100%}
+.pay-line{flex:1;height:2px;background:#b8d8b8;border-radius:1px}
+.pay-arrowhead{color:#2d7a4f;font-size:18px;font-weight:900;margin-left:-2px;line-height:1}
+.pay-chip-label{font-size:12px;font-weight:800;color:#1a6b3a;background:#d1f5e0;border-radius:999px;padding:3px 12px;border:1px solid #a8dab8;white-space:nowrap}
+.pay-chip-label.pot-label{background:#fffbf0;color:#7a4e00;border-color:#e6a820}
 .ppill{border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap}
 .ppill.player{background:#ffe0e0;color:#8b1a1a}
 .ppill.from-pot{background:#fffbf0;color:#7a4e00;border:1px solid #e6a820}
@@ -199,6 +201,8 @@ input[type=number]{width:86px;text-align:right}
 .allsq .big{font-size:40px;margin-bottom:8px}
 .btn-save{width:100%;margin-top:1rem;font-size:14px;font-weight:700;padding:11px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(37,99,235,.2)}
 .btn-save:hover{background:#1d4ed8;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.btn-whatsapp{width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:11px;border-radius:10px;border:none;background:#25d366;color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(37,211,102,.2);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-whatsapp:hover{background:#1da851;box-shadow:0 4px 14px rgba(37,211,102,.3)}
 .save-confirm{display:none;text-align:center;padding:10px;border-radius:10px;background:#f0faf2;color:#1a5c36;font-weight:600;font-size:13px;margin-top:8px;border:1px solid #4caf74}
 
 /* ── History tab ── */
@@ -350,24 +354,17 @@ input[type=number]{width:86px;text-align:right}
 <div class="slbl">Food Expenses 🍕</div>
 <div class="food-card">
   <div class="food-card-top"></div>
-  <div class="food-card-body">
-    <div class="food-icon">🍕</div>
-    <div class="food-info">
-      <div class="food-title">Food &amp; Other Expenses</div>
-      <div class="food-subtitle">Pot pays for food &amp; other shared expenses. Enter amount and who paid — they'll be reimbursed from the pot.</div>
-    </div>
-    <div class="food-fields">
-      <div class="food-field">
-        <label>Amount Spent</label>
-        <input type="number" id="foodAmount" value="0" min="0" placeholder="0" oninput="liveAudit()">
-      </div>
-      <div class="food-field">
-        <label>Paid by</label>
-        <select id="foodPaidBy" onchange="liveAudit()">
-          <option value="">— select player —</option>
-        </select>
+  <div class="food-card-body" style="flex-direction:column;align-items:stretch;gap:10px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="food-icon">🍕</div>
+      <div class="food-info">
+        <div class="food-title">Food &amp; Other Expenses</div>
+        <div class="food-subtitle">Pot reimburses each payer. Add multiple rows if more than one person paid.</div>
       </div>
     </div>
+    <div id="foodRowsContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button onclick="addFoodRow()" style="align-self:flex-start;font-size:12px;font-weight:700;padding:5px 14px;border-radius:8px;border:1.5px solid #f5874a;background:#fff5f0;color:#e06030;cursor:pointer">+ Add payer</button>
+    <div style="font-size:11px;color:#c06030;font-weight:600" id="foodTotal"></div>
   </div>
 </div>
 
@@ -375,12 +372,14 @@ input[type=number]{width:86px;text-align:right}
 <div class="pot-card">
   <div class="pot-card-top"></div>
   <div class="pot-card-body">
-    <div class="pot-icon">🏆</div>
-    <div class="pot-info">
-      <div class="pot-title">Pot</div>
-      <div class="pot-subtitle">Chips remaining in pot. Leave 0 if unknown — imaginary pot covers any shortfall.</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="pot-icon">🏆</div>
+      <div>
+        <div class="pot-title">Pot</div>
+        <div class="pot-subtitle">Chips remaining in pot. Leave 0 if unknown — pot covers any shortfall.</div>
+      </div>
     </div>
-    <div class="pot-fields">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
       <div class="pot-field">
         <label>Pot final chips</label>
         <input type="number" id="potFinal" value="0" min="0" placeholder="0" oninput="liveAudit()">
@@ -389,6 +388,19 @@ input[type=number]{width:86px;text-align:right}
         <label>Final pot count</label>
         <div class="pot-count-val" id="potFinalCount">—</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="config" style="margin-bottom:1rem">
+  <div class="cfg-row" style="gap:14px;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a">📍 Venue</label>
+      <input type="text" id="venueField" placeholder="e.g. KR's House, Praveen's place..." style="font-size:13px;padding:7px 10px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;width:100%">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a">📅 Session Date</label>
+      <input type="date" id="sessionDate" style="font-size:13px;padding:7px 10px;border-radius:9px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c">
     </div>
   </div>
 </div>
@@ -433,7 +445,11 @@ input[type=number]{width:86px;text-align:right}
 <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem">
   <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2)">
     <div style="font-size:17px;font-weight:800;color:#1c2e1c;margin-bottom:4px">✏️ Edit Session</div>
-    <div style="font-size:12px;color:#7a9a7a;margin-bottom:1.25rem" id="editModalDate"></div>
+    <div style="font-size:12px;color:#7a9a7a;margin-bottom:.75rem" id="editModalDate"></div>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a;display:block;margin-bottom:5px">📍 Venue</label>
+      <input type="text" id="editVenue" placeholder="e.g. KR's House" style="width:100%;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c">
+    </div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a;margin-bottom:8px">Player nets (chips)</div>
     <div id="editPlayerRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem"></div>
     <div style="border-top:1px solid #e8f2e8;padding-top:1rem;margin-top:.5rem">
@@ -552,6 +568,36 @@ const STORAGE_KEY='cardgame_sessions_v1';
 function palFor(name){const i=ALL_NAMES.indexOf(name);return i>=0?PAL[i%PAL.length]:PAL[Math.abs(name.charCodeAt(0)||0)%PAL.length];}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 
+function shareWhatsApp(){
+  // Build message from last settle results
+  const venue=document.getElementById('venueField').value.trim();
+  const dateVal=document.getElementById('sessionDate').value;
+  const dateStr=dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) : new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  const pays=window._lastPays||[];
+  if(!pays.length){alert('Please hit Settle Up first to generate settlements.');return;}
+
+  let msg='♠ *Chip Kings — Settlement* ♣\n';
+  if(venue) msg+=`📍 ${venue}\n`;
+  msg+=`📅 ${dateStr}\n\n`;
+
+  msg+='*Who pays whom:*\n';
+  pays.forEach(p=>{
+    msg+=`• ${p.from} → ${p.to}: ${p.chips} chips${p.fp?' 🏆':''}\n`;
+  });
+
+  // Food expenses
+  const foodRows=getFoodRows().filter(r=>r.amt>0);
+  if(foodRows.length){
+    msg+='\n*🍕 Food & Other Expenses:*\n';
+    foodRows.forEach(r=>{ msg+=`• ${r.paidBy||'?'}: ${r.amt} chips (reimbursed from Pot)\n`; });
+  }
+
+  msg+='\n_Settle before next game night! 💰_';
+
+  const encoded=encodeURIComponent(msg);
+  window.open(`https://wa.me/?text=${encoded}`,'_blank');
+}
+
 const TOP_EARNER_TITLES=[
   'చిప్పుల చక్రవర్తి 👑',
   'పైసల పులి 🐯',
@@ -640,28 +686,59 @@ function upCard(i){
   if(pb){const pct=players[i].start>0?Math.min(100,Math.max(2,players[i].end/players[i].start*100)):100;pb.style.width=pct+'%';pb.style.background=diff>0?'#2d7a4f':diff<0?'#d03030':'#9ab89a';}
 }
 
-function updateFoodDropdown(){
-  const sel=document.getElementById('foodPaidBy');
-  const cur=sel.value;
-  const names=players.map(p=>p.name).filter(n=>n);
-  sel.innerHTML='<option value="">— select player —</option>'+names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+// ── Multi-payer food rows ──
+let foodRows=[{amt:0,paidBy:''}]; // array of {amt, paidBy}
+
+function getFoodRows(){
+  return Array.from(document.querySelectorAll('.food-row')).map(row=>({
+    amt:+row.querySelector('.food-row-amt').value||0,
+    paidBy:row.querySelector('.food-row-sel').value||''
+  })).filter(r=>r.amt>0);
 }
+
+function getTotalFoodAmt(){return getFoodRows().reduce((s,r)=>s+r.amt,0);}
+
+function renderFoodRows(){
+  const names=players.map(p=>p.name).filter(n=>n);
+  const container=document.getElementById('foodRowsContainer');
+  if(!container)return;
+  container.innerHTML=foodRows.map((r,i)=>{
+    const opts=names.map(n=>`<option value="${n}"${n===r.paidBy?' selected':''}>${n}</option>`).join('');
+    return `<div class="food-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="food-field"><label>Amount Spent</label>
+        <input type="number" class="food-row-amt" value="${r.amt||''}" min="0" placeholder="0"
+          oninput="foodRows[${i}].amt=+this.value;updateFoodTotal();liveAudit()" style="width:110px">
+      </div>
+      <div class="food-field"><label>Paid by</label>
+        <select class="food-row-sel" onchange="foodRows[${i}].paidBy=this.value;liveAudit()">
+          <option value="">— select —</option>${opts}
+        </select>
+      </div>
+      ${foodRows.length>1?`<button onclick="removeFoodRow(${i})" style="margin-top:14px;font-size:18px;background:none;border:none;color:#e06030;cursor:pointer;line-height:1">×</button>`:''}
+    </div>`;
+  }).join('');
+  updateFoodTotal();
+}
+
+function addFoodRow(){foodRows.push({amt:0,paidBy:''});renderFoodRows();}
+function removeFoodRow(i){foodRows.splice(i,1);if(!foodRows.length)foodRows=[{amt:0,paidBy:''}];renderFoodRows();liveAudit();}
+function updateFoodTotal(){
+  const total=foodRows.reduce((s,r)=>s+(r.amt||0),0);
+  const el=document.getElementById('foodTotal');
+  if(el) el.textContent=total>0?`Total food expenses: ${total} chips (reimbursed from Pot)`:'';
+}
+function updateFoodDropdown(){renderFoodRows();}
 
 function calcPotFlow(){
   const totalWon  = players.reduce((s,p)=>s+(p.end>p.start?p.end-p.start:0),0);
   const totalLost = players.reduce((s,p)=>s+(p.end<p.start?p.start-p.end:0),0);
-  const potFinal  = +document.getElementById('potFinal').value||0;
-  const foodAmt   = +document.getElementById('foodAmount').value||0;
-  // pot chip diff from players: surplus if lost > won, shortfall if won > lost
-  const chipDiff  = totalLost - totalWon; // +ve = surplus goes to pot, -ve = pot pays
-  // food reduces pot balance (pot pays food payer)
-  const finalPotCount = potFinal + chipDiff - foodAmt;
-  return {totalWon, totalLost, potFinal, foodAmt,
-    chipDiff,
-    potGets: Math.max(0, chipDiff),
-    potPays: Math.max(0, -chipDiff),
-    finalPotCount
-  };
+  const potFinal  = +document.getElementById("potFinal").value||0;
+  const foodEntries=getFoodRows();
+  const totalFoodAmt=foodEntries.reduce((s,r)=>s+r.amt,0);
+  const chipDiff  = totalLost - totalWon;
+  return {totalWon,totalLost,potFinal,foodEntries,totalFoodAmt,chipDiff,
+    potGets:Math.max(0,chipDiff),potPays:Math.max(0,-chipDiff),
+    finalPotCount:potFinal+chipDiff-totalFoodAmt};
 }
 
 function liveAudit(){
@@ -669,20 +746,20 @@ function liveAudit(){
   const fpc=document.getElementById('potFinalCount');
   updateFoodDropdown();
   if(!players.length){bar.className='audit waiting';txt.textContent='Select players and enter final chip counts to begin.';pill.textContent='Waiting';fpc.textContent='—';fpc.style.color='#7a9a7a';return;}
-  const {potFinal,foodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
+  const {potFinal,totalFoodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
   fpc.textContent=finalPotCount+' chips';
   fpc.style.color=finalPotCount>0?'#2d7a4f':finalPotCount<0?'#c87800':'#1c2e1c';
-  if(chipDiff===0&&foodAmt===0){bar.className='audit ok';txt.textContent='Perfectly balanced — pot unchanged.';pill.textContent='✓ Balanced';}
-  else if(chipDiff>0){bar.className='audit ok';txt.textContent=`Surplus ${potGets} chips go to Pot.${foodAmt>0?' Pot also covers '+foodAmt+' food chips.':''}`;pill.textContent=`Pot net: ${finalPotCount}`;}
-  else{const im=Math.max(0,potPays+foodAmt-potFinal);bar.className=im>0?'audit note':'audit ok';txt.textContent=`Pot pays ${potPays} chips to winners${foodAmt>0?' + '+foodAmt+' food chips':''}.`;pill.textContent=`Pot net: ${finalPotCount}`;}
+  if(chipDiff===0&&totalFoodAmt===0){bar.className='audit ok';txt.textContent='Perfectly balanced — pot unchanged.';pill.textContent='✓ Balanced';}
+  else if(chipDiff>0){bar.className='audit ok';txt.textContent=`Surplus ${potGets} chips go to Pot.${totalFoodAmt>0?' Pot also covers '+totalFoodAmt+' food chips.':''}`;pill.textContent=`Pot net: ${finalPotCount}`;}
+  else{const im=Math.max(0,potPays+totalFoodAmt-potFinal);bar.className=im>0?'audit note':'audit ok';txt.textContent=`Pot pays ${potPays} chips to winners${totalFoodAmt>0?' + '+totalFoodAmt+' food chips':''}.`;pill.textContent=`Pot net: ${finalPotCount}`;}
 }
 
 function resetChips(){
   const s=+document.getElementById('startChips').value||250;
   players.forEach(p=>{p.start=s;p.end=s;});
   document.getElementById('potFinal').value=0;
-  document.getElementById('foodAmount').value=0;
-  document.getElementById('foodPaidBy').value='';
+  foodRows=[{amt:0,paidBy:''}];
+  renderFoodRows();
   render();liveAudit();
   document.getElementById('results').style.display='none';
   document.getElementById('saveConfirm').style.display='none';
@@ -712,60 +789,42 @@ function normalizePayments(bals){
 
 function settle(){
   liveAudit();
-  const {totalWon,totalLost,potFinal,foodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
-  const foodPaidBy=document.getElementById('foodPaidBy').value;
-  const imaginaryUsed=Math.max(0, potPays+foodAmt-potFinal);
+  const {totalWon,totalLost,potFinal,foodEntries,totalFoodAmt,chipDiff,potGets,potPays,finalPotCount}=calcPotFlow();
+  const imaginaryUsed=Math.max(0, potPays+totalFoodAmt-potFinal);
   const nets=players.map(p=>({...p,net:p.end-p.start}));
   const sorted=[...nets].sort((a,b)=>b.net-a.net);
   const maxAbs=Math.max(...nets.map(n=>Math.abs(n.net)),potGets,potPays,1);
   const ts=players.reduce((s,p)=>s+p.start,0);
 
-  // Build optimized balance sheet — consolidate ALL flows into one net per participant
-  // Player chip net (game only)
-  const balMap = {};
-  nets.forEach(p=>{
-    const key=p.name||'?';
-    balMap[key]={name:key, c:p.c, net:p.net, isPot:false};
+  // Build consolidated balance map
+  const balMap={};
+  nets.forEach(p=>{ balMap[p.name||'?']={name:p.name||'?',c:p.c,net:p.net,isPot:false}; });
+  let potNetChips=potGets-potPays;
+  // Each food payer: pot credits them, pot debits itself
+  foodEntries.forEach(({amt,paidBy})=>{
+    if(amt<=0) return;
+    potNetChips-=amt;
+    if(paidBy && balMap[paidBy]) balMap[paidBy].net+=amt;
+    else if(paidBy) balMap[paidBy]={name:paidBy,c:palFor(paidBy),net:amt,isPot:false};
   });
-
-  // Pot's net from chip play: potGets>0 means pot is creditor, potPays>0 means pot is debtor
-  // Net pot chip position = potGets - potPays (one value, one entry)
-  let potNetChips = potGets - potPays; // +ve = pot is owed chips (creditor), -ve = pot pays out (debtor)
-
-  // Food: pot pays foodAmt to food payer (reduces pot's position, credits payer)
-  if(foodAmt>0){
-    potNetChips -= foodAmt; // pot pays food payer
-    if(foodPaidBy && balMap[foodPaidBy]){
-      balMap[foodPaidBy].net += foodAmt; // food payer gets reimbursed (separate from game net for display, but merged for settlement math)
-    } else if(foodPaidBy){
-      const payerC=palFor(foodPaidBy);
-      balMap[foodPaidBy]={name:foodPaidBy, c:payerC, net:foodAmt, isPot:false};
-    }
-  }
-
-  // Add single consolidated Pot entry
-  if(Math.abs(potNetChips)>0){
-    balMap['Pot']={name:'Pot', c:POT_C, net:potNetChips, isPot:true, isPotIn:potNetChips>0};
-  }
+  if(Math.abs(potNetChips)>0) balMap['Pot']={name:'Pot',c:POT_C,net:potNetChips,isPot:true,isPotIn:potNetChips>0};
 
   const bals=Object.values(balMap);
   const pays=normalizePayments(bals);
-  pays.forEach(p=>{
-    if(p.from.endsWith('*')) p.from=p.from.slice(0,-1);
-    if(p.to.endsWith('*')) p.to=p.to.slice(0,-1);
-  });
+  pays.forEach(p=>{if(p.from.endsWith('*'))p.from=p.from.slice(0,-1);if(p.to.endsWith('*'))p.to=p.to.slice(0,-1);});
 
   // Food notice
   let foodNotice='';
-  if(foodAmt>0){
-    foodNotice=`<div style="border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;line-height:1.6;font-weight:500;background:#fff5f0;color:#7a2800;border:1px solid #f5874a">🍕 Food &amp; Other Expenses: <strong>${foodAmt} chips</strong>${foodPaidBy?' — paid by <strong>'+foodPaidBy+'</strong>, reimbursed from Pot.':' — deducted from Pot (no payer selected).'}</div>`;
+  if(totalFoodAmt>0){
+    const lines=foodEntries.filter(r=>r.amt>0).map(r=>`<strong>${r.paidBy||'Unknown'}</strong> paid ${r.amt} chips`).join(', ');
+    foodNotice=`<div style="border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;line-height:1.6;font-weight:500;background:#fff5f0;color:#7a2800;border:1px solid #f5874a">🍕 Food &amp; Other Expenses: <strong>${totalFoodAmt} chips total</strong> — ${lines}. Reimbursed from Pot.</div>`;
   }
 
   let potNotice='';
-  if(chipDiff>0) potNotice=`<div class="pot-notice">Surplus <strong>${potGets} chips</strong> → Pot.${foodAmt>0?' Pot covers food ('+foodAmt+' chips).':''} Final pot: <strong>${finalPotCount} chips</strong>.</div>`;
-  else if(chipDiff<0||foodAmt>0) potNotice=`<div class="pot-notice">Pot pays <strong>${potPays} chips</strong> to winners.${foodAmt>0?' Pot also covers <strong>'+foodAmt+' food chips</strong>.':''} Final pot: <strong>${finalPotCount} chips</strong>.${imaginaryUsed>0?' ('+imaginaryUsed+' chips from reserve)':''}</div>`;
+  if(chipDiff>0) potNotice=`<div class="pot-notice">Surplus <strong>${potGets} chips</strong> → Pot.${totalFoodAmt>0?' Pot covers food ('+totalFoodAmt+' chips).':''} Final pot: <strong>${finalPotCount} chips</strong>.</div>`;
+  else if(chipDiff<0||totalFoodAmt>0) potNotice=`<div class="pot-notice">Pot pays <strong>${potPays} chips</strong> to winners.${totalFoodAmt>0?' Pot also covers <strong>'+totalFoodAmt+' food chips</strong>.':''} Final pot: <strong>${finalPotCount} chips</strong>.${imaginaryUsed>0?' ('+imaginaryUsed+' chips from reserve)':''}</div>`;
 
-  const potTrioCls=chipDiff===0&&foodAmt===0?'tok':finalPotCount>=0?'tok':'tpot';
+  const potTrioCls=chipDiff===0&&totalFoodAmt===0?'tok':finalPotCount>=0?'tok':'tpot';
 
   const lbRows=sorted.map((p,idx)=>{
     const isBigWin=p.net>0&&idx===0&&p.net>ts*0.25;
@@ -790,27 +849,41 @@ function settle(){
   // Net summary: always show raw game chip net (food is separate)
   const nsCards=nets.map(p=>{
     const cls=p.net>0?'win':p.net<0?'lose':'even';
-    const isFoodPayer=foodAmt>0&&foodPaidBy&&p.name===foodPaidBy;
+    const myFood=foodEntries.filter(r=>r.paidBy===p.name&&r.amt>0);
+    const myFoodAmt=myFood.reduce((s,r)=>s+r.amt,0);
     return `<div class="nscard ${cls}">
-      <div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:${p.c.dot};display:inline-block;flex-shrink:0"></span>${p.name||'?'}${isFoodPayer?' 🍕':''}</div>
+      <div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:${p.c.dot};display:inline-block;flex-shrink:0"></span>${p.name||'?'}${myFoodAmt>0?' 🍕':''}</div>
       <div class="nv">${p.net===0?'Even':(p.net>0?'+':'')+p.net}</div>
-      ${isFoodPayer?`<div style="font-size:10px;color:#c06030;margin-top:2px">+${foodAmt} from Pot 🏆</div>`:''}
+      ${myFoodAmt>0?`<div style="font-size:10px;color:#c06030;margin-top:2px">+${myFoodAmt} food from Pot</div>`:''}
     </div>`;
   }).join('');
-  const potNS=(chipDiff!==0||foodAmt>0)?`<div class="nscard potn"><div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:#e6a820;display:inline-block;flex-shrink:0"></span>Pot</div><div class="nv">${finalPotCount>=0?'+':''}${finalPotCount}</div><div style="font-size:10px;color:#b07820;margin-top:2px">final balance</div></div>`:'';
-  const foodNS=foodAmt>0&&foodPaidBy?`<div class="nscard" style="background:#fff5f0;border-color:#f5874a"><div class="nl" style="color:#c06030"><span style="font-size:12px">🍕</span>Food paid</div><div class="nv" style="color:#7a2800">-${foodAmt}</div><div style="font-size:10px;color:#c06030;margin-top:2px">by ${foodPaidBy}</div></div>`:'';
+  const potNS=(chipDiff!==0||totalFoodAmt>0)?`<div class="nscard potn"><div class="nl"><span style="width:7px;height:7px;border-radius:50%;background:#e6a820;display:inline-block;flex-shrink:0"></span>Pot</div><div class="nv">${finalPotCount>=0?'+':''}${finalPotCount}</div><div style="font-size:10px;color:#b07820;margin-top:2px">final balance</div></div>`:'';
+  const foodNS=totalFoodAmt>0?`<div class="nscard" style="background:#fff5f0;border-color:#f5874a"><div class="nl" style="color:#c06030"><span style="font-size:12px">🍕</span>Food &amp; expenses</div><div class="nv" style="color:#7a2800">-${totalFoodAmt}</div><div style="font-size:10px;color:#c06030;margin-top:2px">${foodEntries.filter(r=>r.amt>0).map(r=>r.paidBy||'?').join(', ')}</div></div>`:'';
 
   const pillCls=p=>p.fp&&!p.toPotIn?'from-pot':p.tp&&p.toPotIn?'to-pot':'player';
   const payHTML=pays.length===0
     ?`<div class="allsq"><div class="big">🎉</div>All square — no payments needed!</div>`
-    :`<div class="paylist">${pays.map(p=>`<div class="payrow">
-        <div class="pav" style="background:${p.fc.bg};color:${p.fc.text};border-color:${p.fc.cbg}">${p.from.slice(0,2).toUpperCase()}</div>
-        <span class="pnm">${p.from}</span>
-        <div class="arrwrap"><div class="aline"></div><div class="ahead">→</div><div class="aline"></div></div>
-        <span class="pnm" style="text-align:right">${p.to}</span>
-        <div class="pav" style="background:${p.tc.bg};color:${p.tc.text};border-color:${p.tc.cbg}">${p.to.slice(0,2).toUpperCase()}</div>
-        <span class="ppill ${pillCls(p)}">${p.chips} chips${p.fp&&!p.toPotIn?' 🏆':p.tp&&p.toPotIn?' →🏆':''}</span>
-      </div>`).join('')}</div>`;
+    :`<div class="paylist">${pays.map(p=>{
+      const isPot=p.fp||p.tp;
+      const chipCol=isPot?'pot-label':'';
+      return `<div class="payrow ${isPot?'pot-row':''}">
+        <div class="pay-from">
+          <div class="pav" style="background:${p.fc.bg};color:${p.fc.text};border-color:${p.fc.cbg}">${p.from.slice(0,2).toUpperCase()}</div>
+          <span class="pnm">${p.from}</span>
+        </div>
+        <div class="pay-mid">
+          <span class="pay-chip-label ${chipCol}">${p.chips} chips${p.fp?' 🏆':''}</span>
+          <div class="pay-arrow-wrap">
+            <div class="pay-line"></div>
+            <div class="pay-arrowhead">▶</div>
+          </div>
+        </div>
+        <div class="pay-to">
+          <div class="pav" style="background:${p.tc.bg};color:${p.tc.text};border-color:${p.tc.cbg}">${p.to.slice(0,2).toUpperCase()}</div>
+          <span class="pnm">${p.to}</span>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
 
   window._lastPays=pays;
   const res=document.getElementById('results');
@@ -824,9 +897,13 @@ function settle(){
     </div>
     ${foodNotice}${potNotice}
     <hr class="divider"><div class="slbl">Leaderboard</div><div class="lb">${lbRows}</div>
-    <hr class="divider"><div class="slbl">Net gains &amp; losses</div><div class="nsgrid">${nsCards}${potNS}${foodNS}</div>
+    <hr class="divider"><div class="slbl">Net gains &amp; losses</div><div class="nsgrid">${nsCards}${foodNS}</div>
     <hr class="divider"><div class="slbl">Who pays whom — ${pays.length} transaction${pays.length!==1?'s':''}</div>${payHTML}
     <button class="btn-save" onclick="saveSession()">💾 Save this session to history</button>
+    <button class="btn-whatsapp" onclick="shareWhatsApp()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.1.549 4.07 1.51 5.773L0 24l6.406-1.482A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-4.987-1.362l-.358-.214-3.706.857.882-3.607-.234-.372A9.818 9.818 0 1112 21.818z"/></svg>
+      Share on WhatsApp
+    </button>
     <div class="save-confirm" id="saveConfirm">✅ Session saved! Check the History &amp; Trends tabs.</div>
   </div>`;
   res.scrollIntoView({behavior:'smooth',block:'start'});
@@ -840,12 +917,16 @@ function saveSession(){
   const nets=players.map(p=>({name:p.name||'?',net:p.end-p.start,start:p.start,end:p.end}));
   if(nets.every(p=>p.net===0)){alert('All players are even — nothing to save!');return;}
   const {potGets,potPays,finalPotCount}=calcPotFlow();
-  const foodAmt=+document.getElementById('foodAmount').value||0;
-  const foodPaidBy=migrateName(document.getElementById('foodPaidBy').value||'');
-  // Capture current payments for settlement tracker
   const lastPays=window._lastPays||[];
   const settlements=lastPays.map(p=>({from:p.from,to:p.to,chips:p.chips,fromPot:p.fp||false,toPot:p.tp||false,settled:false}));
-  const session={id:Date.now(),date:new Date().toISOString(),players:nets,potGets,potPays,finalPotCount,foodAmt,foodPaidBy,settlements};
+  const foodEntries2=getFoodRows();
+  const totalFoodAmt2=foodEntries2.reduce((s,r)=>s+r.amt,0);
+  const foodAmt=totalFoodAmt2;
+  const foodPaidBy=foodEntries2.length===1&&foodEntries2[0].amt>0?foodEntries2[0].paidBy:'';
+  const venue=document.getElementById('venueField').value.trim();
+  const sessionDateVal=document.getElementById('sessionDate').value;
+  const sessionDateTime=sessionDateVal ? new Date(sessionDateVal).toISOString() : new Date().toISOString();
+  const session={id:Date.now(),date:sessionDateTime,venue,players:nets,potGets,potPays,finalPotCount,foodAmt,foodPaidBy,foodEntries:foodEntries2,settlements};
   const all=loadSessions();
   all.push(session);
   saveSessions(all);
@@ -877,6 +958,7 @@ function openEditModal(id){
   document.getElementById('editModalDate').textContent = d.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})+' — '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('editFoodAmt').value = s.foodAmt||0;
   document.getElementById('editFoodPaidBy').value = s.foodPaidBy||'';
+  document.getElementById('editVenue').value = s.venue||'';
   const rows = document.getElementById('editPlayerRows');
   rows.innerHTML = s.players.map((p,i)=>`
     <div style="display:flex;align-items:center;gap:10px">
@@ -901,6 +983,7 @@ function saveEditSession(){
   s.players = s.players.map((p,i)=>({...p, net: +document.getElementById('editNet_'+i).value||0}));
   s.foodAmt = +document.getElementById('editFoodAmt').value||0;
   s.foodPaidBy = document.getElementById('editFoodPaidBy').value.trim();
+  s.venue = document.getElementById('editVenue').value.trim();
   // Recalc pot
   const totalWon  = s.players.reduce((sum,p)=>sum+(p.net>0?p.net:0),0);
   const totalLost = s.players.reduce((sum,p)=>sum+(p.net<0?-p.net:0),0);
@@ -946,7 +1029,8 @@ function renderHistory(){
       const label=s.foodPaidBy&&p.name===s.foodPaidBy&&s.foodAmt>0?' 🍕':'';
       return `<div class="sess-player ${cls}"><span class="sess-name">${p.name}${label}</span><span class="sess-net">${displayNet===0?'±0':(displayNet>0?'+':'')+displayNet}</span></div>`;
     }).join('');
-    const foodLine=s.foodAmt>0?`<div style="margin-top:6px;font-size:11px;color:#c06030;font-weight:600">🍕 Food &amp; Other Expenses: ${s.foodAmt} chips${s.foodPaidBy?' (paid by '+s.foodPaidBy+')':''}</div>`:'';
+    const foodEntries=s.foodEntries&&s.foodEntries.length?s.foodEntries.filter(r=>r.amt>0):s.foodAmt>0?[{amt:s.foodAmt,paidBy:s.foodPaidBy||''}]:[];
+    const foodLine=foodEntries.length>0?`<div style="margin-top:6px;font-size:11px;color:#c06030;font-weight:600">🍕 Food &amp; Other Expenses: ${foodEntries.map(r=>`${r.amt} chips${r.paidBy?' by '+r.paidBy:''}`).join(', ')}</div>`:'';
 
     // Settlement tracker
     let settleTrackerHTML='';
@@ -987,13 +1071,13 @@ function renderHistory(){
 
     return `<div class="session-card">
       <div class="session-date">
-        <span>📅 ${ds}</span>
+        <span>📅 ${ds}${s.venue?' &nbsp;·&nbsp; 📍 '+s.venue:''}</span>
         <div style="display:flex;gap:6px">
           <button class="btn-del-sess" style="border-color:#b8d8b8;color:#2d7a4f" onclick="openEditModal(${s.id})">✏ Edit</button>
           <button class="btn-del-sess" onclick="deleteSession(${s.id})">✕ Delete</button>
         </div>
       </div>
-      <div class="session-players">${cards}${s.potGets>0?`<div class="sess-player" style="background:#fffbf0;border-color:#f6c343;color:#7a4e00"><span class="sess-name">Pot</span><span class="sess-net">+${s.potGets}</span></div>`:''}${s.potPays>0?`<div class="sess-player" style="background:#fffbf0;border-color:#f6c343;color:#7a4e00"><span class="sess-name">Pot</span><span class="sess-net">-${s.potPays}</span></div>`:''}</div>
+      <div class="session-players">${cards}</div>
       ${foodLine}
       ${settleTrackerHTML}
     </div>`;
@@ -1282,6 +1366,9 @@ function showPage(name){
 
 migrateAndPatchSessions();
 buildPlayers();
+renderFoodRows();
+// Set today's date as default
+document.getElementById('sessionDate').value=new Date().toISOString().slice(0,10);
 renderHistory();
 renderTrends();
 </script>
