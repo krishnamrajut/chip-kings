@@ -32,7 +32,7 @@ Session dots — one dot per game night, green = won, red = lost
 
 
 Player Roster
-AbbreviationPlayerKRK RajuPPPraveenPVPrafullaCPChiruSGSrikanthK1RajeshK2SandeepRRRama RajuMMMaheshVKVamsiRARanjithRMRavindra
+Manual Entry, PP, KR, K1, K2, PV, MM, CP, SG, VK, RM, RA.
 
 How to Use
 Starting a new session
