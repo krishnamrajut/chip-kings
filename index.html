@@ -7,6 +7,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef5ee;color:#1c2e1c;min-height:100vh}
+.pin-btn{padding:16px;font-size:20px;font-weight:700;border-radius:12px;border:1px solid #c0d8c0;background:#f6fbf6;color:#1c2e1c;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.pin-btn:hover,.pin-btn:active{background:#e0f0e0}
 .app{padding:1.5rem 1rem 3rem;max-width:820px;margin:0 auto}
 
 /* ── Tabs ── */
@@ -197,6 +199,22 @@ input[type=number]{width:86px;text-align:right}
 .settle-check.checked svg{display:block}
 .settle-summary{font-size:11px;padding:4px 10px 7px;color:#7a9a7a;font-weight:600}
 .settle-summary .done-count{color:#2d7a4f;font-weight:700}
+/* Partial payments */
+.partial-log{margin-top:5px;padding:5px 8px;background:#f0faf2;border-radius:7px;border:1px solid #c8e8c8}
+.partial-entry{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0;border-bottom:1px solid #e0f0e0}
+.partial-entry:last-child{border-bottom:none}
+.partial-date{color:#7a9a7a;flex-shrink:0}
+.partial-amt{font-weight:700;color:#1a6b3a}
+.partial-del{margin-left:auto;background:none;border:none;color:#c0c0c0;cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.partial-del:hover{color:#c03030}
+.partial-remaining{font-size:11px;font-weight:700;color:#c87800;margin-top:4px}
+.partial-remaining.done{color:#2d7a4f}
+.btn-add-partial{font-size:10px;font-weight:700;padding:2px 9px;border-radius:6px;border:1px solid #b8d8b8;background:#f0faf2;color:#2d7a4f;cursor:pointer;white-space:nowrap}
+.btn-add-partial:hover{background:#e0f5e8}
+.partial-input-row{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.partial-input-row input{font-size:12px;padding:4px 7px;border-radius:6px;border:1px solid #c0d8c0;background:#f6fbf6;width:80px;text-align:right}
+.partial-input-row button{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;border:none;background:#2d7a4f;color:#fff;cursor:pointer}
+.partial-input-row .cancel-btn{background:none;border:1px solid #c0d8c0;color:#7a9a7a}
 .allsq{text-align:center;padding:1.5rem;color:#6a8c6a;font-size:14px;font-weight:600}
 .allsq .big{font-size:40px;margin-bottom:8px}
 .btn-save{width:100%;margin-top:1rem;font-size:14px;font-weight:700;padding:11px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(37,99,235,.2)}
@@ -314,7 +332,56 @@ input[type=number]{width:86px;text-align:right}
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- PIN Lock Screen -->
+<div id="pinScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#eef5ee;padding:2rem">
+  <div style="background:#fff;border:1px solid #c0d8c0;border-radius:20px;padding:2.5rem 2rem;max-width:340px;width:100%;box-shadow:0 8px 32px rgba(45,122,79,.12);text-align:center">
+    <!-- Logo -->
+    <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:12px">
+      <rect x="21" y="38" width="12" height="10" rx="1" fill="#c87800"/>
+      <rect x="19" y="32" width="16" height="7" rx="1" fill="#e6a820"/>
+      <rect x="17" y="26" width="20" height="7" rx="1" fill="#c87800"/>
+      <rect x="15" y="20" width="24" height="7" rx="1" fill="#e6a820"/>
+      <rect x="18" y="16" width="18" height="5" rx="1" fill="#c87800"/>
+      <ellipse cx="27" cy="13" rx="5" ry="3" fill="#e6a820"/>
+      <ellipse cx="27" cy="11" rx="3" ry="2" fill="#c87800"/>
+      <circle cx="27" cy="9" r="2" fill="#e6a820"/>
+      <circle cx="42" cy="42" r="9" fill="#2d7a4f" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="42" cy="42" r="6.5" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="42" y="46" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="sans-serif">♠</text>
+    </svg>
+    <div style="font-size:24px;font-weight:800;color:#1c2e1c;margin-bottom:4px">Chip <span style="color:#c87800">Kings</span></div>
+    <div style="font-size:13px;color:#7a9a7a;margin-bottom:28px">Enter PIN to continue</div>
+
+    <!-- PIN dots display -->
+    <div style="display:flex;justify-content:center;gap:14px;margin-bottom:28px" id="pinDots">
+      <div id="dot0" style="width:14px;height:14px;border-radius:50%;border:2px solid #c0d8c0;background:#fff;transition:all .15s"></div>
+      <div id="dot1" style="width:14px;height:14px;border-radius:50%;border:2px solid #c0d8c0;background:#fff;transition:all .15s"></div>
+      <div id="dot2" style="width:14px;height:14px;border-radius:50%;border:2px solid #c0d8c0;background:#fff;transition:all .15s"></div>
+      <div id="dot3" style="width:14px;height:14px;border-radius:50%;border:2px solid #c0d8c0;background:#fff;transition:all .15s"></div>
+    </div>
+
+    <!-- Number pad -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto">
+      <button onclick="pinKey('1')" class="pin-btn">1</button>
+      <button onclick="pinKey('2')" class="pin-btn">2</button>
+      <button onclick="pinKey('3')" class="pin-btn">3</button>
+      <button onclick="pinKey('4')" class="pin-btn">4</button>
+      <button onclick="pinKey('5')" class="pin-btn">5</button>
+      <button onclick="pinKey('6')" class="pin-btn">6</button>
+      <button onclick="pinKey('7')" class="pin-btn">7</button>
+      <button onclick="pinKey('8')" class="pin-btn">8</button>
+      <button onclick="pinKey('9')" class="pin-btn">9</button>
+      <div></div>
+      <button onclick="pinKey('0')" class="pin-btn">0</button>
+      <button onclick="pinKey('⌫')" class="pin-btn" style="font-size:16px">⌫</button>
+    </div>
+
+    <div id="pinError" style="margin-top:16px;font-size:13px;color:#c03030;font-weight:600;min-height:20px;opacity:0;transition:opacity .2s"></div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
 
 <div class="header">
   <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px">
@@ -543,6 +610,18 @@ function migrateName(n){ return NAME_MAP[n]||n; }
 function migrateAndPatchSessions(){
   let sessions=loadSessions();
 
+  // Step 0: Fix dates stored as UTC midnight (T00:00:00.000Z) — shift to local noon
+  // to prevent timezone-caused day-flip when displaying in IST (UTC+5:30)
+  sessions=sessions.map(s=>{
+    if(s.date&&s.date.endsWith('T00:00:00.000Z')){
+      const d=new Date(s.date);
+      // Shift to noon local time: parse date parts and rebuild
+      const yr=d.getUTCFullYear(), mo=d.getUTCMonth(), dy=d.getUTCDate();
+      return {...s, date: new Date(yr,mo,dy,12,0,0).toISOString()};
+    }
+    return s;
+  });
+
   // Step 1: Rename all player names across all sessions (always safe to re-run)
   sessions=sessions.map(s=>({
     ...s,
@@ -563,41 +642,64 @@ function migrateAndPatchSessions(){
         potGets:Math.max(0,chipDiff), potPays:Math.max(0,-chipDiff),
         finalPotCount:(s.potFinal||0)+chipDiff-191};
     }
-    // Apr 24 2026 → KR paid 205
+    // Apr 24 2026 → KR paid 205 + patch SG→KR partial payment of 300 chips
     if(year===2026 && month===4 && day===24){
       const totalWon =s.players.reduce((sum,p)=>sum+(p.net>0?p.net:0),0);
       const totalLost=s.players.reduce((sum,p)=>sum+(p.net<0?-p.net:0),0);
       const chipDiff=totalLost-totalWon;
-      return {...s, foodAmt:205, foodPaidBy:'KR', _foodPatched:true,
+      const updated={...s, foodAmt:205, foodPaidBy:'KR', _foodPatched:true,
         potGets:Math.max(0,chipDiff), potPays:Math.max(0,-chipDiff),
         finalPotCount:(s.potFinal||0)+chipDiff-205};
+      // Patch SG→KR partial payment of 300 chips if settlements exist and not already patched
+      if(updated.settlements&&!updated._sgKrPatched){
+        const sgKrIdx=updated.settlements.findIndex(x=>x.from==='SG'&&x.to==='KR');
+        if(sgKrIdx>=0){
+          if(!updated.settlements[sgKrIdx].partialPayments) updated.settlements[sgKrIdx].partialPayments=[];
+          // Only add if not already there
+          if(!updated.settlements[sgKrIdx].partialPayments.some(p=>p.amt===300)){
+            updated.settlements[sgKrIdx].partialPayments.push({amt:300,date:'01 May 2026'});
+            const paidSoFar=updated.settlements[sgKrIdx].partialPayments.reduce((sum,p)=>sum+p.amt,0);
+            if(paidSoFar>=updated.settlements[sgKrIdx].chips) updated.settlements[sgKrIdx].settled=true;
+          }
+        }
+        updated._sgKrPatched=true;
+      }
+      return updated;
     }
     return s;
   });
 
   // Step 3: Rebuild settlements for ALL sessions with optimized algorithm
-  // Always rebuild (ignore old _settleOptimized flag) to ensure consolidated Pot logic is applied
+  // Use _settleOptimized2 flag to force rebuild of sessions with old broken algorithm
   sessions=sessions.map(s=>{
+    if(s._settleOptimized2) return s; // already rebuilt with correct algorithm
     const foodAmt=s.foodAmt||0, foodPaidBy=s.foodPaidBy||'';
+    const foodEntries=s.foodEntries&&s.foodEntries.length?s.foodEntries.filter(r=>r.amt>0):foodAmt>0?[{amt:foodAmt,paidBy:foodPaidBy}]:[];
     const balMap={};
     s.players.forEach(p=>{
       balMap[p.name]={name:p.name, c:palFor(p.name), net:p.net, isPot:false};
     });
-    let potNetChips=(s.potGets||0)-(s.potPays||0);
-    if(foodAmt>0){
-      potNetChips-=foodAmt;
-      if(foodPaidBy&&balMap[foodPaidBy]) balMap[foodPaidBy].net+=foodAmt;
-      else if(foodPaidBy) balMap[foodPaidBy]={name:foodPaidBy,c:palFor(foodPaidBy),net:foodAmt,isPot:false};
-    }
+    // Chip surplus/shortfall
+    const totalWon=s.players.reduce((a,p)=>a+(p.net>0?p.net:0),0);
+    const totalLost=s.players.reduce((a,p)=>a+(p.net<0?-p.net:0),0);
+    let potNetChips=(totalLost-totalWon);
+    // Food: pot pays each food payer
+    foodEntries.forEach(({amt,paidBy})=>{
+      if(amt<=0) return;
+      potNetChips-=amt;
+      if(paidBy&&balMap[paidBy]) balMap[paidBy].net+=amt;
+      else if(paidBy) balMap[paidBy]={name:paidBy,c:palFor(paidBy),net:amt,isPot:false};
+    });
     if(Math.abs(potNetChips)>0) balMap['Pot']={name:'Pot',c:POT_C,net:potNetChips,isPot:true,isPotIn:potNetChips>0};
     const pays=normalizePayments(Object.values(balMap));
     pays.forEach(p=>{if(p.from.endsWith('*'))p.from=p.from.slice(0,-1);if(p.to.endsWith('*'))p.to=p.to.slice(0,-1);});
-    // Preserve any existing settled=true status by from→to key
+    // Preserve existing settled/partial status by from→to key
     const oldMap={};
-    (s.settlements||[]).forEach(x=>{ oldMap[x.from+'→'+x.to]=x.settled; });
-    return {...s, _settleOptimized:true, settlements:pays.map(p=>({
+    (s.settlements||[]).forEach(x=>{oldMap[x.from+'→'+x.to]={settled:x.settled,partialPayments:x.partialPayments};});
+    return {...s, _settleOptimized2:true, settlements:pays.map(p=>({
       from:p.from, to:p.to, chips:p.chips, fromPot:!!p.fp, toPot:!!p.tp,
-      settled: oldMap[p.from+'→'+p.to]||false
+      settled:oldMap[p.from+'→'+p.to]?.settled||false,
+      partialPayments:oldMap[p.from+'→'+p.to]?.partialPayments||[]
     }))};
   });
 
@@ -627,7 +729,13 @@ function shareWhatsApp(){
   // Build message from last settle results
   const venue=document.getElementById('venueField').value.trim();
   const dateVal=document.getElementById('sessionDate').value;
-  const dateStr=dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) : new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  let dateStr;
+  if(dateVal){
+    const [y,m,d]=dateVal.split('-');
+    dateStr=new Date(+y,+m-1,+d,12,0,0).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  } else {
+    dateStr=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  }
   const pays=window._lastPays||[];
   if(!pays.length){alert('Please hit Settle Up first to generate settlements.');return;}
 
@@ -637,7 +745,7 @@ function shareWhatsApp(){
 
   msg+='*Who pays whom:*\n';
   pays.forEach(p=>{
-    msg+=`• ${p.from} → ${p.to}: ${p.chips} chips${p.fp?' 🏆':''}\n`;
+    msg+=`• ${p.from} → ${p.to}: ${p.chips} chips\n`;
   });
 
   // Food expenses
@@ -927,7 +1035,7 @@ function settle(){
           <span class="pnm">${p.from}</span>
         </div>
         <div class="pay-mid">
-          <span class="pay-chip-label ${chipCol}">${p.chips} chips${p.fp?' 🏆':''}</span>
+          <span class="pay-chip-label ${chipCol}">${p.chips} chips</span>
           <div class="pay-arrow-wrap">
             <div class="pay-line"></div>
             <div class="pay-arrowhead">▶</div>
@@ -980,7 +1088,16 @@ function saveSession(){
   const foodPaidBy=foodEntries2.length===1&&foodEntries2[0].amt>0?foodEntries2[0].paidBy:'';
   const venue=document.getElementById('venueField').value.trim();
   const sessionDateVal=document.getElementById('sessionDate').value;
-  const sessionDateTime=sessionDateVal ? new Date(sessionDateVal).toISOString() : new Date().toISOString();
+  // Parse date as LOCAL time (not UTC) to avoid timezone shift
+  // new Date('2026-04-30') = UTC midnight = previous day in IST
+  // Fix: parse manually or use T12:00:00 to avoid day boundary issues
+  let sessionDateTime;
+  if(sessionDateVal){
+    const [y,m,d]=sessionDateVal.split('-');
+    sessionDateTime=new Date(+y,+m-1,+d,12,0,0).toISOString();
+  } else {
+    sessionDateTime=new Date().toISOString();
+  }
   const session={id:Date.now(),date:sessionDateTime,venue,players:nets,potGets,potPays,finalPotCount,foodAmt,foodPaidBy,foodEntries:foodEntries2,settlements};
   const all=loadSessions();
   all.push(session);
@@ -1162,7 +1279,7 @@ function runMultiSettle(){
           <span class="pnm">${p.from}</span>
         </div>
         <div class="pay-mid">
-          <span class="pay-chip-label ${p.fp?'pot-label':''}">${p.chips} chips${p.fp?' 🏆':''}</span>
+          <span class="pay-chip-label ${p.fp?'pot-label':''}">${p.chips} chips</span>
           <div class="pay-arrow-wrap"><div class="pay-line"></div><div class="pay-arrowhead">▶</div></div>
         </div>
         <div class="pay-to">
@@ -1202,7 +1319,7 @@ function buildMultiWAMsg(sessions,pays,foodEntries){
     msg+=`• ${d}${s.venue?' @ '+s.venue:''}\n`;
   });
   msg+='\n*Combined payments:*\n';
-  pays.forEach(p=>{ msg+=`• ${p.from} → ${p.to}: ${p.chips} chips${p.fp?' 🏆':''}\n`; });
+  pays.forEach(p=>{ msg+=`• ${p.from} → ${p.to}: ${p.chips} chips\n`; });
   if(foodEntries.length){
     msg+='\n*🍕 Food expenses included:*\n';
     foodEntries.forEach(r=>{ msg+=`• ${r.paidBy||'?'}: ${r.amt} chips (${r.sessionDate})\n`; });
@@ -1218,6 +1335,46 @@ function shareMultiWhatsApp(msg){
 function closeMultiModal(){
   document.getElementById('multiModal').classList.remove('open');
   cancelMultiSettle();
+}
+
+function showPartialInput(sessionId,idx){
+  const el=document.getElementById(`partialinput_${sessionId}_${idx}`);
+  if(el){el.style.display='block';const inp=document.getElementById(`partialamt_${sessionId}_${idx}`);if(inp)inp.focus();}
+}
+
+function addPartialPayment(sessionId,idx){
+  const inp=document.getElementById(`partialamt_${sessionId}_${idx}`);
+  const amt=+inp.value||0;
+  if(amt<=0){alert('Please enter a valid chip amount.');return;}
+  const sessions=loadSessions();
+  const s=sessions.find(x=>x.id===sessionId);
+  if(!s||!s.settlements) return;
+  const pay=s.settlements[idx];
+  if(!pay.partialPayments) pay.partialPayments=[];
+  const paidSoFar=pay.partialPayments.reduce((sum,p)=>sum+p.amt,0);
+  const remaining=pay.chips-paidSoFar;
+  if(amt>remaining){alert(`Can't pay more than the remaining ${remaining} chips.`);return;}
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  pay.partialPayments.push({amt,date:today});
+  // Auto-mark as settled if fully paid
+  if(paidSoFar+amt>=pay.chips) pay.settled=true;
+  saveSessions(sessions);
+  renderHistory();
+}
+
+function removePartialPayment(sessionId,idx,pi){
+  if(!confirm('Remove this payment record?')) return;
+  const sessions=loadSessions();
+  const s=sessions.find(x=>x.id===sessionId);
+  if(!s||!s.settlements) return;
+  const pay=s.settlements[idx];
+  if(!pay.partialPayments) return;
+  pay.partialPayments.splice(pi,1);
+  // Recalc settled status
+  const paidSoFar=pay.partialPayments.reduce((sum,p)=>sum+p.amt,0);
+  if(paidSoFar<pay.chips) pay.settled=false;
+  saveSessions(sessions);
+  renderHistory();
 }
 
 function toggleSettled(sessionId, idx){
@@ -1257,22 +1414,57 @@ function renderHistory(){
     // Settlement tracker
     let settleTrackerHTML='';
     if(s.settlements&&s.settlements.length>0){
-      const doneCount=s.settlements.filter(x=>x.settled).length;
+      const doneCount=s.settlements.filter(x=>{
+        const partials=x.partialPayments||[];
+        const paid=partials.reduce((sum,p)=>sum+p.amt,0);
+        return x.settled||paid>=x.chips;
+      }).length;
       const total=s.settlements.length;
       const allDone=doneCount===total;
-      const rows=s.settlements.map((pay,idx)=>`
-        <div class="settle-item ${pay.settled?'done':''}">
-          <span class="settle-from">${pay.from}</span>
-          <span class="settle-arrow">→</span>
-          <span class="settle-to">${pay.to}</span>
-          <span class="settle-chips ${pay.fromPot||pay.toPot?'pot':''}">${pay.chips} chips${pay.fromPot?' 🏆':pay.toPot?' →🏆':''}</span>
-          <div class="settle-status">
-            <div class="settle-check ${pay.settled?'checked':''}" onclick="toggleSettled(${s.id},${idx})">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span style="font-size:10px;color:${pay.settled?'#2d7a4f':'#c0c0c0'};font-weight:600">${pay.settled?'Paid':'Pending'}</span>
+      const totalChips=s.settlements.reduce((sum,x)=>sum+x.chips,0);
+      const paidChips=s.settlements.reduce((sum,x)=>{
+        if(x.settled) return sum+x.chips;
+        return sum+(x.partialPayments||[]).reduce((a,p)=>a+p.amt,0);
+      },0);
+      const rows=s.settlements.map((pay,idx)=>{
+        const partials=pay.partialPayments||[];
+        const paidSoFar=partials.reduce((sum,p)=>sum+p.amt,0);
+        const remaining=pay.chips-paidSoFar;
+        const isFullyPaid=pay.settled||remaining<=0;
+        const partialLog=partials.length?`<div class="partial-log">
+          ${partials.map((p,pi)=>`<div class="partial-entry">
+            <span class="partial-date">${p.date}</span>
+            <span class="partial-amt">+${p.amt} chips paid</span>
+            <button class="partial-del" onclick="removePartialPayment(${s.id},${idx},${pi})" title="Remove this payment">✕</button>
+          </div>`).join('')}
+          <div class="partial-remaining ${remaining<=0?'done':''}">
+            ${remaining<=0?'✅ Fully paid!':'⏳ Remaining: '+remaining+' chips'}
           </div>
-        </div>`).join('');
+        </div>`:'';
+        return `<div class="settle-item ${isFullyPaid?'done':''}">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span class="settle-from">${pay.from}</span>
+              <span class="settle-arrow">→</span>
+              <span class="settle-to">${pay.to}</span>
+              <span class="settle-chips ${pay.fromPot||pay.toPot?'pot':''}">${pay.chips} chips</span>
+              ${!isFullyPaid?`<button class="btn-add-partial" onclick="showPartialInput(${s.id},${idx})">+ Partial payment</button>`:''}
+              <div class="settle-check ${isFullyPaid?'checked':''}" onclick="toggleSettled(${s.id},${idx})" title="${isFullyPaid?'Mark as unpaid':'Mark as fully paid'}" style="margin-left:auto">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <span style="font-size:10px;color:${isFullyPaid?'#2d7a4f':'#c0c0c0'};font-weight:600;white-space:nowrap">${isFullyPaid?'Paid':'Pending'}</span>
+            </div>
+            <div id="partialinput_${s.id}_${idx}" style="display:none">
+              <div class="partial-input-row">
+                <input type="number" id="partialamt_${s.id}_${idx}" placeholder="chips" min="1" max="${remaining}">
+                <button onclick="addPartialPayment(${s.id},${idx})">✓ Save</button>
+                <button class="cancel-btn" onclick="document.getElementById('partialinput_${s.id}_${idx}').style.display='none'">Cancel</button>
+              </div>
+            </div>
+            ${partialLog}
+          </div>
+        </div>`;
+      }).join('');
       settleTrackerHTML=`<div class="settle-tracker">
         <div class="settle-tracker-hd" onclick="toggleSettleTracker(${s.id})">
           <div class="settle-tracker-hd-lbl">
@@ -1284,7 +1476,7 @@ function renderHistory(){
         </div>
         <div id="strows_${s.id}" style="display:none">
           <div class="settle-rows">${rows}</div>
-          <div class="settle-summary">${allDone?'<span class="done-count">✅ All settled!</span>':'<span class="done-count">'+doneCount+'</span> of '+total+' payments done · <span style="color:#c87800;font-weight:700">'+(total-doneCount)+' pending</span>'}</div>
+          <div class="settle-summary">${allDone?'<span class="done-count">✅ All settled!</span>':'<span class="done-count">'+doneCount+'</span> of '+total+' paid · <span style="color:#c87800;font-weight:700">'+paidChips+'/'+totalChips+' chips settled</span>'}</div>
         </div>
       </div>`;
     } else if(s.settlements&&s.settlements.length===0){
@@ -1592,11 +1784,63 @@ function showPage(name){
   if(name==='trends')renderTrends();
 }
 
+/* ── PIN Lock ── */
+let pinEntry='';
+
+function pinKey(k){
+  if(k==='⌫'){ pinEntry=pinEntry.slice(0,-1); }
+  else if(pinEntry.length<4){ pinEntry+=String(k); }
+  updatePinDots();
+  if(pinEntry.length===4) setTimeout(checkPin,120);
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById('dot'+i);
+    if(dot){
+      dot.style.background=i<pinEntry.length?'#2d7a4f':'#fff';
+      dot.style.borderColor=i<pinEntry.length?'#2d7a4f':'#c0d8c0';
+    }
+  }
+}
+
+function checkPin(){
+  if(pinEntry==='1206'){
+    sessionStorage.setItem('ck_unlocked','1');
+    document.getElementById('pinScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    pinEntry='';
+  } else {
+    const err=document.getElementById('pinError');
+    err.textContent='Wrong PIN — try again';
+    err.style.opacity='1';
+    const dots=document.getElementById('pinDots');
+    dots.style.transform='translateX(8px)';
+    setTimeout(()=>dots.style.transform='translateX(-8px)',80);
+    setTimeout(()=>dots.style.transform='translateX(4px)',160);
+    setTimeout(()=>dots.style.transform='translateX(0)',240);
+    setTimeout(()=>{pinEntry='';updatePinDots();err.style.opacity='0';},1000);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('pinScreen').style.display==='none') return;
+  if(e.key>='0'&&e.key<='9') pinKey(e.key);
+  else if(e.key==='Backspace') pinKey('⌫');
+  else if(e.key==='Enter'&&pinEntry.length===4) checkPin();
+});
+
+if(sessionStorage.getItem('ck_unlocked')==='1'){
+  document.getElementById('pinScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+}
+
 migrateAndPatchSessions();
 buildPlayers();
 renderFoodRows();
-// Set today's date as default
-document.getElementById('sessionDate').value=new Date().toISOString().slice(0,10);
+// Set today's date as default (use local date, not UTC)
+const _today=new Date();
+document.getElementById('sessionDate').value=`${_today.getFullYear()}-${String(_today.getMonth()+1).padStart(2,'0')}-${String(_today.getDate()).padStart(2,'0')}`;
 renderHistory();
 renderTrends();
 </script>
